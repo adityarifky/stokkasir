@@ -40,7 +40,7 @@ function AppSidebar() {
             <img
               src="/Desain tanpa judul (2).png"
               alt="Logo Aplikasi"
-              className="w-24 transition-all duration-300 group-data-[state=collapsed]:w-8"
+              className="w-32 transition-all duration-300 group-data-[state=collapsed]:w-8"
             />
           </Link>
         </div>
