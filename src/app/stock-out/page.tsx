@@ -24,7 +24,7 @@ export default function StockOutPage() {
     // Form State
     const [selectedItemId, setSelectedItemId] = useState<string>('');
     const [quantity, setQuantity] = useState('');
-    const [destination, setDestination] = useState('');
+    const [actorName, setActorName] = useState('');
     const [notes, setNotes] = useState('');
     const [unit, setUnit] = useState<'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs' | ''>('');
 
@@ -33,7 +33,7 @@ export default function StockOutPage() {
     const [isFetchingItems, setIsFetchingItems] = useState(true);
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
-    const destinations = ["Dapur Utama", "Cabang A", "Cabang B", "Event Catering", "Klien A"];
+    const staffNames = ["Fina", "Siti", "Fani", "Fara", "Adit", "Ikhsan", "Ratna", "Rifky"];
 
     useEffect(() => {
         if (selectedItem) {
@@ -74,7 +74,7 @@ export default function StockOutPage() {
     const resetForm = () => {
         setSelectedItemId('');
         setQuantity('');
-        setDestination('');
+        setActorName('');
         setNotes('');
         setUnit('');
     }
@@ -82,7 +82,7 @@ export default function StockOutPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!user || !selectedItem || !quantity || !destination || !unit) {
+        if (!user || !selectedItem || !quantity || !actorName || !unit) {
             toast({ variant: "destructive", title: "Formulir tidak lengkap", description: "Mohon isi semua kolom yang wajib diisi." });
             return;
         }
@@ -121,7 +121,7 @@ export default function StockOutPage() {
                     type: 'out',
                     quantity: quantityNum,
                     unit: unit as StockItem['unit'],
-                    actor: destination,
+                    actor: actorName,
                     date: new Date().toISOString(),
                     notes: notes,
                 };
@@ -189,13 +189,13 @@ export default function StockOutPage() {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="destination">Tujuan <span className="text-destructive">*</span></Label>
-                                <Select onValueChange={setDestination} value={destination}>
-                                    <SelectTrigger id="destination">
-                                        <SelectValue placeholder="Pilih tujuan..." />
+                                <Label htmlFor="actor">Nama Staff Pengambil <span className="text-destructive">*</span></Label>
+                                <Select onValueChange={setActorName} value={actorName}>
+                                    <SelectTrigger id="actor">
+                                        <SelectValue placeholder="Pilih nama staff..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {destinations.map(name => (
+                                        {staffNames.map(name => (
                                             <SelectItem key={name} value={name}>{name}</SelectItem>
                                         ))}
                                     </SelectContent>
@@ -203,7 +203,7 @@ export default function StockOutPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="quantity">Jumlah <span className="text-destructive">*</span></Label>
-                                <Input id="quantity" type="number" placeholder="cth., 50" value={quantity} onChange={e => setQuantity(e.target.value)} />
+                                <Input id="quantity" type="number" placeholder="e.g., 10" value={quantity} onChange={e => setQuantity(e.target.value)} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="unit">Satuan <span className="text-destructive">*</span></Label>
