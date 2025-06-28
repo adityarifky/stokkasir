@@ -102,11 +102,11 @@ export default function DashboardPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead>Tanggal</TableHead>
                                     <TableHead>Barang</TableHead>
                                     <TableHead className="text-center">Jenis</TableHead>
                                     <TableHead>Staff</TableHead>
                                     <TableHead className="text-right">Jumlah</TableHead>
-                                    <TableHead>Tanggal</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -119,6 +119,7 @@ export default function DashboardPage() {
                                 ) : recentTransactions.length > 0 ? (
                                     recentTransactions.map((tx) => (
                                         <TableRow key={tx.id}>
+                                            <TableCell>{new Date(tx.date).toLocaleDateString('id-ID')}</TableCell>
                                             <TableCell>
                                                 <div className="font-medium">{tx.itemName}</div>
                                             </TableCell>
@@ -129,7 +130,6 @@ export default function DashboardPage() {
                                             </TableCell>
                                             <TableCell>{tx.actor}</TableCell>
                                             <TableCell className="text-right font-medium">{tx.quantity.toLocaleString()} {tx.unit}</TableCell>
-                                            <TableCell>{new Date(tx.date).toLocaleDateString('id-ID')}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (

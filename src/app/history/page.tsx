@@ -28,18 +28,19 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
         <Table>
             <TableHeader>
                 <TableRow>
+                    <TableHead>Tanggal</TableHead>
                     <TableHead>Barang</TableHead>
                     <TableHead className="text-center">Jenis</TableHead>
                     <TableHead className="text-right">Jumlah</TableHead>
                     <TableHead>Staff</TableHead>
                     <TableHead>Catatan</TableHead>
-                    <TableHead>Tanggal</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {transactions.length > 0 ? (
                     transactions.map((tx) => (
                         <TableRow key={tx.id}>
+                             <TableCell>{new Date(tx.date).toLocaleString('id-ID')}</TableCell>
                             <TableCell>
                                 <div className="font-medium">{tx.itemName}</div>
                             </TableCell>
@@ -51,7 +52,6 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
                             <TableCell className="text-right font-medium">{tx.quantity} {tx.unit}</TableCell>
                             <TableCell>{tx.actor}</TableCell>
                             <TableCell>{tx.notes || '-'}</TableCell>
-                            <TableCell>{new Date(tx.date).toLocaleString('id-ID')}</TableCell>
                         </TableRow>
                     ))
                 ) : (
