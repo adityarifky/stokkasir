@@ -10,16 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ListFilter } from "lucide-react";
 
 
-const allTransactions: Transaction[] = [
-    { id: "1", date: "2023-10-27T10:00:00Z", item: "SKU-001", itemName: "Gold Bar 1oz", type: "in", quantity: 50, actor: "Refinery Inc." },
-    { id: "2", date: "2023-10-27T09:30:00Z", item: "SKU-002", itemName: "Gold Coin", type: "out", quantity: 100, actor: "Client #123" },
-    { id: "3", date: "2023-10-26T15:00:00Z", item: "SKU-003", itemName: "Silver Bar 1kg", type: "in", quantity: 20, actor: "Silver Supplies" },
-    { id: "4", date: "2023-10-26T11:00:00Z", item: "SKU-001", itemName: "Gold Bar 1oz", type: "out", quantity: 10, actor: "Client #124" },
-    { id: "5", date: "2023-10-25T14:20:00Z", item: "SKU-004", itemName: "Platinum Coin", type: "in", quantity: 200, actor: "Platinum World" },
-    { id: "6", date: "2023-10-25T13:00:00Z", item: "SKU-002", itemName: "Gold Coin", type: "in", quantity: 500, actor: "Mint Corp." },
-    { id: "7", date: "2023-10-24T18:00:00Z", item: "SKU-002", itemName: "Gold Coin", type: "out", quantity: 250, actor: "Client #125" },
-    { id: "8", date: "2023-10-24T10:00:00Z", item: "SKU-003", itemName: "Silver Bar 1kg", type: "out", quantity: 5, actor: "Client #126" },
-];
+const allTransactions: Transaction[] = [];
 
 function HistoryTable({ transactions }: { transactions: Transaction[] }) {
     return (
@@ -34,22 +25,30 @@ function HistoryTable({ transactions }: { transactions: Transaction[] }) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {transactions.map((tx) => (
-                    <TableRow key={tx.id}>
-                        <TableCell>
-                            <div className="font-medium">{tx.itemName}</div>
-                            <div className="text-sm text-muted-foreground">{tx.item}</div>
+                {transactions.length > 0 ? (
+                    transactions.map((tx) => (
+                        <TableRow key={tx.id}>
+                            <TableCell>
+                                <div className="font-medium">{tx.itemName}</div>
+                                <div className="text-sm text-muted-foreground">{tx.item}</div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                                <Badge variant={tx.type === 'in' ? 'secondary' : 'outline'} className={tx.type === 'in' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}>
+                                    {tx.type === 'in' ? 'Stok Masuk' : 'Stok Keluar'}
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">{tx.quantity}</TableCell>
+                            <TableCell>{tx.actor}</TableCell>
+                            <TableCell>{new Date(tx.date).toLocaleString()}</TableCell>
+                        </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={5} className="h-24 text-center">
+                            Tidak ada transaksi untuk ditampilkan.
                         </TableCell>
-                        <TableCell className="text-center">
-                            <Badge variant={tx.type === 'in' ? 'secondary' : 'outline'} className={tx.type === 'in' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}>
-                                {tx.type === 'in' ? 'Stok Masuk' : 'Stok Keluar'}
-                            </Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-medium">{tx.quantity}</TableCell>
-                        <TableCell>{tx.actor}</TableCell>
-                        <TableCell>{new Date(tx.date).toLocaleString()}</TableCell>
                     </TableRow>
-                ))}
+                )}
             </TableBody>
         </Table>
     )
