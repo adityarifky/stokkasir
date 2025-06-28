@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import type { Transaction } from "@/lib/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ListFilter, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
@@ -71,6 +71,7 @@ export default function HistoryPage() {
     const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('date');
 
     useEffect(() => {
         if (user) {
@@ -98,11 +99,18 @@ export default function HistoryPage() {
     }, [user]);
     
     const filteredTransactions = useMemo(() => {
-        return allTransactions.filter(tx => 
+        let transactions = allTransactions.filter(tx => 
             tx.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             tx.actor.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [allTransactions, searchTerm]);
+        
+        if (sortBy === 'name') {
+            return [...transactions].sort((a, b) => a.itemName.localeCompare(b.itemName));
+        }
+
+        // Default sort by date is already handled by the Firestore query
+        return transactions;
+    }, [allTransactions, searchTerm, sortBy]);
 
     const stockInTxs = useMemo(() => filteredTransactions.filter(tx => tx.type === 'in'), [filteredTransactions]);
     const stockOutTxs = useMemo(() => filteredTransactions.filter(tx => tx.type === 'out'), [filteredTransactions]);
@@ -122,17 +130,17 @@ export default function HistoryPage() {
                             <Button variant="outline" size="sm" className="h-8 gap-1">
                             <ListFilter className="h-3.5 w-3.5" />
                             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                Filter
+                                Urutkan
                             </span>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Filter berdasarkan</DropdownMenuLabel>
+                            <DropdownMenuLabel>Urutkan berdasarkan</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuCheckboxItem checked>
-                            Tanggal
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem>Nama Barang</DropdownMenuCheckboxItem>
+                            <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+                                <DropdownMenuRadioItem value="date">Tanggal</DropdownMenuRadioItem>
+                                <DropdownMenuRadioItem value="name">Nama Barang</DropdownMenuRadioItem>
+                            </DropdownMenuRadioGroup>
                         </DropdownMenuContent>
                         </DropdownMenu>
                          <Input
