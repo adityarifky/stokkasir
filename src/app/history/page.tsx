@@ -31,7 +31,6 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
                     <TableHead>Barang</TableHead>
                     <TableHead className="text-center">Jenis</TableHead>
                     <TableHead className="text-right">Jumlah</TableHead>
-                    <TableHead>Pemasok/Tujuan</TableHead>
                     <TableHead>Tanggal</TableHead>
                 </TableRow>
             </TableHeader>
@@ -49,13 +48,12 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right font-medium">{tx.quantity}</TableCell>
-                            <TableCell>{tx.actor}</TableCell>
                             <TableCell>{new Date(tx.date).toLocaleString('id-ID')}</TableCell>
                         </TableRow>
                     ))
                 ) : (
                     <TableRow>
-                        <TableCell colSpan={5} className="h-24 text-center">
+                        <TableCell colSpan={4} className="h-24 text-center">
                             Tidak ada transaksi untuk ditampilkan.
                         </TableCell>
                     </TableRow>

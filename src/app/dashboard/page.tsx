@@ -105,14 +105,13 @@ export default function DashboardPage() {
                                     <TableHead>Barang</TableHead>
                                     <TableHead className="text-center">Jenis</TableHead>
                                     <TableHead className="text-right">Jumlah</TableHead>
-                                    <TableHead>Pemasok/Tujuan</TableHead>
                                     <TableHead>Tanggal</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
+                                        <TableCell colSpan={4} className="h-24 text-center">
                                             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                                         </TableCell>
                                     </TableRow>
@@ -129,13 +128,12 @@ export default function DashboardPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-right font-medium">{tx.quantity.toLocaleString()}</TableCell>
-                                            <TableCell>{tx.actor}</TableCell>
                                             <TableCell>{new Date(tx.date).toLocaleDateString('id-ID')}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
+                                        <TableCell colSpan={4} className="h-24 text-center">
                                             Belum ada transaksi terkini.
                                         </TableCell>
                                     </TableRow>
