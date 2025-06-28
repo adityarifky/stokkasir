@@ -152,7 +152,7 @@ export default function StockInPage() {
             <form onSubmit={handleSubmit}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Tambah Bahan Baku Masuk</CardTitle>
+                        <CardTitle>Tambah Barang Kasir Masuk</CardTitle>
                         <CardDescription>Isi detail bahan baku yang diterima.</CardDescription>
                     </CardHeader>
                     <CardContent>
