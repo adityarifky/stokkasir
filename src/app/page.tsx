@@ -12,8 +12,6 @@ export default function LoginPage() {
             height={150}
             className="mb-4"
           />
-          <h1 className="text-2xl font-bold text-foreground">Selamat Datang Bro!</h1>
-          <p className="text-sm text-muted-foreground">Monggo Diisi Yang Benar Yaaa</p>
         </div>
         <LoginForm />
       </div>

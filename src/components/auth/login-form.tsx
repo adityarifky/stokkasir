@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -26,18 +26,9 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [currentDate, setCurrentDate] = useState("");
   const { signIn } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const dateOptions: Intl.DateTimeFormatOptions = {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    };
-    setCurrentDate(new Date().toLocaleDateString('id-ID', dateOptions));
-  }, []);
-
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,8 +56,8 @@ export function LoginForm() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Masuk</CardTitle>
-        <CardDescription>{currentDate || "Memuat tanggal..."}</CardDescription>
+        <CardTitle>Selamat Datang Bro!</CardTitle>
+        <CardDescription>Monggo Diisi Yang Benar Yaaa</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -110,7 +101,7 @@ export function LoginForm() {
 
 // Dummy Card components to make this file self-contained
 const Card = ({ className, children }: { className?: string, children: React.ReactNode }) => <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}>{children}</div>;
-const CardHeader = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col space-y-1.5 p-6">{children}</div>;
+const CardHeader = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col space-y-1.5 p-6 text-center">{children}</div>;
 const CardTitle = ({ children }: { children: React.ReactNode }) => <h3 className="text-2xl font-semibold leading-none tracking-tight">{children}</h3>;
 const CardDescription = ({ children }: { children: React.ReactNode }) => <p className="text-sm text-muted-foreground">{children}</p>;
 const CardContent = ({ children }: { children: React.ReactNode }) => <div className="p-6 pt-0">{children}</div>;
