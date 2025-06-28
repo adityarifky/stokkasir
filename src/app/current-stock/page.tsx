@@ -8,14 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/auth-context";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Loader2, Boxes, AlertTriangle, CheckCircle, Edit, PlusCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
 
 export default function CurrentStockPage() {
     const { user } = useAuth();
+    const { toast } = useToast();
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+    const [editingNoteItem, setEditingNoteItem] = useState<StockItem | null>(null);
+    const [urgentNoteInput, setUrgentNoteInput] = useState('');
+    const [isSubmittingNote, setIsSubmittingNote] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -41,6 +50,31 @@ export default function CurrentStockPage() {
             setIsLoading(false);
         }
     }, [user]);
+
+    const openNoteDialog = (item: StockItem) => {
+        setEditingNoteItem(item);
+        setUrgentNoteInput(item.urgentNote || '');
+        setIsNoteDialogOpen(true);
+    };
+    
+    const handleSaveNote = async () => {
+        if (!user || !editingNoteItem) return;
+
+        setIsSubmittingNote(true);
+        const itemRef = doc(db, `users/${user.uid}/items`, editingNoteItem.id);
+        try {
+            await updateDoc(itemRef, {
+                urgentNote: urgentNoteInput
+            });
+            toast({ title: "Berhasil!", description: "Catatan berhasil diperbarui." });
+            setIsNoteDialogOpen(false);
+        } catch (error) {
+            console.error("Gagal memperbarui catatan:", error);
+            toast({ variant: "destructive", title: "Gagal", description: "Tidak dapat memperbarui catatan." });
+        } finally {
+            setIsSubmittingNote(false);
+        }
+    };
 
     const getStatusBadge = (item: StockItem) => {
         const isLowStock = item.quantity <= item.lowStockThreshold;
@@ -111,7 +145,7 @@ export default function CurrentStockPage() {
                                                 {item.urgentNote ? (
                                                     <div>
                                                         <p className="text-sm text-primary font-semibold">{item.urgentNote}</p>
-                                                        <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary">
+                                                        <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary" onClick={() => openNoteDialog(item)}>
                                                             <Edit className="h-3 w-3 mr-1" />
                                                             Edit Catatan
                                                         </Button>
@@ -119,7 +153,7 @@ export default function CurrentStockPage() {
                                                 ) : (
                                                     <div>
                                                         <p className="text-xs text-muted-foreground italic">Belum ada catatan</p>
-                                                         <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary">
+                                                         <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary" onClick={() => openNoteDialog(item)}>
                                                             <PlusCircle className="h-3 w-3 mr-1" />
                                                             Tambah Catatan
                                                         </Button>
@@ -142,6 +176,28 @@ export default function CurrentStockPage() {
                     </CardContent>
                 </Card>
             </div>
+             <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Catatan Urgent untuk {editingNoteItem?.name}</DialogTitle>
+                        <DialogDescription>
+                            Tambah atau ubah catatan penting untuk barang ini.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <Label htmlFor="urgentNote" className="text-left">
+                            Catatan
+                        </Label>
+                        <Textarea id="urgentNote" value={urgentNoteInput} onChange={(e) => setUrgentNoteInput(e.target.value)} placeholder="Tulis catatan di sini..."/>
+                    </div>
+                    <DialogFooter>
+                        <Button onClick={handleSaveNote} disabled={isSubmittingNote}>
+                            {isSubmittingNote && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Simpan Catatan
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }

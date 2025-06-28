@@ -70,6 +70,7 @@ export default function HistoryPage() {
     const { user } = useAuth();
     const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if (user) {
@@ -96,8 +97,15 @@ export default function HistoryPage() {
         }
     }, [user]);
     
-    const stockInTxs = useMemo(() => allTransactions.filter(tx => tx.type === 'in'), [allTransactions]);
-    const stockOutTxs = useMemo(() => allTransactions.filter(tx => tx.type === 'out'), [allTransactions]);
+    const filteredTransactions = useMemo(() => {
+        return allTransactions.filter(tx => 
+            tx.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tx.actor.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [allTransactions, searchTerm]);
+
+    const stockInTxs = useMemo(() => filteredTransactions.filter(tx => tx.type === 'in'), [filteredTransactions]);
+    const stockOutTxs = useMemo(() => filteredTransactions.filter(tx => tx.type === 'out'), [filteredTransactions]);
     
     return (
         <AppLayout pageTitle="Riwayat Transaksi">
@@ -130,13 +138,15 @@ export default function HistoryPage() {
                          <Input
                             placeholder="Cari transaksi..."
                             className="h-8 w-[150px] lg:w-[250px]"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                 </div>
                 <Card className="mt-4">
                     <CardContent className="pt-6">
                         <TabsContent value="all">
-                            <HistoryTable transactions={allTransactions} isLoading={isLoading} />
+                            <HistoryTable transactions={filteredTransactions} isLoading={isLoading} />
                         </TabsContent>
                         <TabsContent value="stock-in">
                             <HistoryTable transactions={stockInTxs} isLoading={isLoading} />
