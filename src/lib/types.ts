@@ -9,10 +9,10 @@ export type Transaction = {
 };
 
 export type StockItem = {
-  id: string;
+  id:string;
   name: string;
   sku: string;
-  category: string;
+  unit: 'Pack' | 'Pcs' | 'Roll' | 'Box';
   quantity: number;
   lowStockThreshold: number;
 };
