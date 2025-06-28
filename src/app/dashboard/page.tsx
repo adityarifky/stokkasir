@@ -12,6 +12,12 @@ import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { useEffect, useState, useMemo } from "react";
 import { isToday, parseISO } from "date-fns";
 
+type MostUsedItem = {
+    name: string;
+    unit: StockItem['unit'];
+    count: number;
+};
+
 export default function DashboardPage() {
     const { user } = useAuth();
     const [summary, setSummary] = useState({
@@ -21,6 +27,7 @@ export default function DashboardPage() {
         stockOutToday: 0
     });
     const [lowStockItemsList, setLowStockItemsList] = useState<StockItem[]>([]);
+    const [mostUsedItems, setMostUsedItems] = useState<MostUsedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -49,6 +56,23 @@ export default function DashboardPage() {
                 const stockOutToday = txsList.filter(tx => tx.type === 'out' && isToday(parseISO(tx.date))).reduce((acc, tx) => acc + tx.quantity, 0);
 
                 setSummary(prev => ({ ...prev, stockInToday, stockOutToday }));
+                
+                // Calculate most used items
+                const stockOutTxs = txsList.filter(tx => tx.type === 'out');
+                const usageCounts = stockOutTxs.reduce((acc, tx) => {
+                    const key = tx.itemName;
+                    if (!acc[key]) {
+                        acc[key] = { name: tx.itemName, unit: tx.unit, count: 0 };
+                    }
+                    acc[key].count += 1; // Count frequency of transactions
+                    return acc;
+                }, {} as { [key: string]: MostUsedItem });
+
+                const sortedMostUsed = Object.values(usageCounts)
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 5); // Get top 5
+
+                setMostUsedItems(sortedMostUsed);
                 setIsLoading(false);
             }, error => {
                 console.error("Error fetching transactions for dashboard:", error);
@@ -64,6 +88,7 @@ export default function DashboardPage() {
             setIsLoading(false);
             setSummary({ totalItems: 0, lowStockItems: 0, stockInToday: 0, stockOutToday: 0 });
             setLowStockItemsList([]);
+            setMostUsedItems([]);
         }
     }, [user]);
 
@@ -95,58 +120,103 @@ export default function DashboardPage() {
                     ))}
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Stok Barang Menipis</CardTitle>
-                        <CardDescription>Barang yang perlu segera di order lagi.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Nama Barang</TableHead>
-                                    <TableHead className="text-right">Stok Saat Ini</TableHead>
-                                    <TableHead className="text-right">Batas Minimum</TableHead>
-                                    <TableHead className="text-center">Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
+                <div className="grid gap-8 lg:grid-cols-2">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Stok Barang Menipis</CardTitle>
+                            <CardDescription>Barang yang perlu segera di order lagi.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
-                                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                                        </TableCell>
+                                        <TableHead>Nama Barang</TableHead>
+                                        <TableHead className="text-right">Stok Saat Ini</TableHead>
+                                        <TableHead className="text-right">Batas Minimum</TableHead>
+                                        <TableHead className="text-center">Status</TableHead>
                                     </TableRow>
-                                ) : lowStockItemsList.length > 0 ? (
-                                    lowStockItemsList.map((item) => (
-                                        <TableRow key={item.id}>
-                                            <TableCell>
-                                                <div className="font-medium">{item.name}</div>
-                                            </TableCell>
-                                            <TableCell className="text-right font-medium text-destructive">
-                                                {item.quantity.toLocaleString()} {item.unit}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                {item.lowStockThreshold.toLocaleString()} {item.unit}
-                                            </TableCell>
-                                            <TableCell className="text-center">
-                                                <Badge variant={'destructive'}>
-                                                    Menipis
-                                                </Badge>
+                                </TableHeader>
+                                <TableBody>
+                                    {isLoading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="h-24 text-center">
+                                                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                ) : (
+                                    ) : lowStockItemsList.length > 0 ? (
+                                        lowStockItemsList.map((item) => (
+                                            <TableRow key={item.id}>
+                                                <TableCell>
+                                                    <div className="font-medium">{item.name}</div>
+                                                </TableCell>
+                                                <TableCell className="text-right font-medium text-destructive">
+                                                    {item.quantity.toLocaleString()} {item.unit}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    {item.lowStockThreshold.toLocaleString()} {item.unit}
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <Badge variant={'destructive'}>
+                                                        Menipis
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="h-24 text-center">
+                                                Semua stok barang dalam kondisi aman.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Penggunaan Barang Terbanyak</CardTitle>
+                            <CardDescription>Barang yang paling sering dikeluarkan dari stok.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
-                                            Semua stok barang dalam kondisi aman.
-                                        </TableCell>
+                                        <TableHead>Nama Barang</TableHead>
+                                        <TableHead className="text-right">Frekuensi Pengambilan</TableHead>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                                </TableHeader>
+                                <TableBody>
+                                    {isLoading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={2} className="h-24 text-center">
+                                                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : mostUsedItems.length > 0 ? (
+                                        mostUsedItems.map((item) => (
+                                            <TableRow key={item.name}>
+                                                <TableCell>
+                                                    <div className="font-medium">{item.name}</div>
+                                                </TableCell>
+                                                <TableCell className="text-right font-medium">
+                                                    {item.count.toLocaleString()} kali
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={2} className="h-24 text-center">
+                                               Belum ada data penggunaan barang.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AppLayout>
     );
