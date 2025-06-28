@@ -11,55 +11,109 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { StockItem } from "@/lib/types";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
+
 
 export default function ItemsPage() {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    // Form state
     const [name, setName] = useState('');
     const [unit, setUnit] = useState<'Pack' | 'Pcs' | 'Roll' | 'Box' | ''>('');
     const [lowStockThreshold, setLowStockThreshold] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        try {
-            const savedItems = localStorage.getItem('stockItems');
-            if (savedItems) {
-                setStockItems(JSON.parse(savedItems));
-            }
-        } catch (error) {
-            console.error("Gagal memuat barang dari localStorage", error);
+        if (user) {
+            setIsLoading(true);
+            const itemsColRef = collection(db, `users/${user.uid}/items`);
+            const q = query(itemsColRef, orderBy("name", "asc"));
+
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const itemsList = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as StockItem));
+                setStockItems(itemsList);
+                setIsLoading(false);
+            }, (error) => {
+                console.error("Gagal mengambil data barang:", error);
+                toast({
+                    variant: "destructive",
+                    title: "Gagal mengambil data",
+                    description: "Terjadi kesalahan saat mengambil daftar barang.",
+                });
+                setIsLoading(false);
+            });
+
+            return () => unsubscribe();
+        } else {
+            // No user, clear items and set loading to false
+            setStockItems([]);
+            setIsLoading(false);
         }
-    }, []);
+    }, [user, toast]);
 
-    useEffect(() => {
-        localStorage.setItem('stockItems', JSON.stringify(stockItems));
-    }, [stockItems]);
-
-    const handleAddItem = (e: React.FormEvent) => {
+    const handleAddItem = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name || !unit || !lowStockThreshold) {
-            // A simple alert for validation, you might want to use toasts
-            alert("Silakan isi semua kolom.");
+            toast({
+                variant: "destructive",
+                title: "Formulir tidak lengkap",
+                description: "Silakan isi semua kolom yang wajib diisi.",
+            });
             return;
         }
+        if (!user) {
+             toast({
+                variant: "destructive",
+                title: "Akses ditolak",
+                description: "Anda harus masuk untuk menambahkan barang.",
+            });
+            return;
+        }
+        
+        setIsSubmitting(true);
 
-        const newItem: StockItem = {
-            id: new Date().toISOString(),
-            name,
-            unit: unit as 'Pack' | 'Pcs' | 'Roll' | 'Box',
-            lowStockThreshold: parseInt(lowStockThreshold, 10),
-            quantity: 0, // New items start with 0 quantity
-            sku: `SKU-${Math.random().toString(36).substring(2, 9).toUpperCase()}` // Auto-generate SKU
-        };
+        try {
+            const itemsColRef = collection(db, `users/${user.uid}/items`);
+            await addDoc(itemsColRef, {
+                name,
+                unit,
+                lowStockThreshold: parseInt(lowStockThreshold, 10),
+                quantity: 0,
+                sku: `SKU-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+            });
 
-        setStockItems(prevItems => [...prevItems, newItem]);
+            toast({
+                title: "Berhasil!",
+                description: "Barang baru telah berhasil ditambahkan.",
+            });
 
-        // Reset form and close dialog
-        setName('');
-        setUnit('');
-        setLowStockThreshold('');
-        setIsDialogOpen(false);
+            // Reset form and close dialog
+            setName('');
+            setUnit('');
+            setLowStockThreshold('');
+            setIsDialogOpen(false);
+        } catch (error) {
+            console.error("Gagal menambah barang:", error);
+            toast({
+                variant: "destructive",
+                title: "Gagal menyimpan",
+                description: "Terjadi kesalahan saat menyimpan barang baru.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -90,7 +144,13 @@ export default function ItemsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {stockItems.length > 0 ? (
+                                {isLoading ? (
+                                     <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">
+                                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                        </TableCell>
+                                    </TableRow>
+                                ) : stockItems.length > 0 ? (
                                     stockItems.map((item) => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium">{item.name}</TableCell>
@@ -164,7 +224,10 @@ export default function ItemsPage() {
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button type="submit">Simpan Barang</Button>
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Simpan Barang
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

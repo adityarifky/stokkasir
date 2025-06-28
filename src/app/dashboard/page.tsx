@@ -1,20 +1,78 @@
+"use client";
+
 import AppLayout from "@/components/layout/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, ArrowDownLeft, Boxes, AlertTriangle } from "lucide-react";
-import type { Transaction } from "@/lib/types";
-
-const summaryCards = [
-    { title: "Total Barang", value: "0", icon: Boxes, trend: "" },
-    { title: "Barang Stok Rendah", value: "0", icon: AlertTriangle, trend: "" },
-    { title: "Stok Masuk (Hari Ini)", value: "0", icon: ArrowDownLeft },
-    { title: "Stok Keluar (Hari Ini)", value: "0", icon: ArrowUpRight },
-];
-
-const recentTransactions: Transaction[] = [];
+import { ArrowUpRight, ArrowDownLeft, Boxes, AlertTriangle, Loader2 } from "lucide-react";
+import type { Transaction, StockItem } from "@/lib/types";
+import { useAuth } from "@/contexts/auth-context";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { useEffect, useState, useMemo } from "react";
+import { isToday, parseISO } from "date-fns";
 
 export default function DashboardPage() {
+    const { user } = useAuth();
+    const [summary, setSummary] = useState({
+        totalItems: 0,
+        lowStockItems: 0,
+        stockInToday: 0,
+        stockOutToday: 0
+    });
+    const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (user) {
+            setIsLoading(true);
+
+            // Listener for items to calculate summary
+            const itemsColRef = collection(db, `users/${user.uid}/items`);
+            const itemsUnsubscribe = onSnapshot(itemsColRef, (snapshot) => {
+                const itemsList = snapshot.docs.map(doc => doc.data() as StockItem);
+                const totalItems = itemsList.length;
+                const lowStockItems = itemsList.filter(item => item.quantity <= item.lowStockThreshold).length;
+                
+                setSummary(prev => ({ ...prev, totalItems, lowStockItems }));
+            }, error => console.error("Error fetching items for dashboard:", error));
+
+            // Listener for transactions
+            const txsColRef = collection(db, `users/${user.uid}/transactions`);
+            const txsQuery = query(txsColRef, orderBy("date", "desc"));
+            const txsUnsubscribe = onSnapshot(txsQuery, (snapshot) => {
+                const txsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
+                
+                const stockInToday = txsList.filter(tx => tx.type === 'in' && isToday(parseISO(tx.date))).reduce((acc, tx) => acc + tx.quantity, 0);
+                const stockOutToday = txsList.filter(tx => tx.type === 'out' && isToday(parseISO(tx.date))).reduce((acc, tx) => acc + tx.quantity, 0);
+
+                setSummary(prev => ({ ...prev, stockInToday, stockOutToday }));
+                setRecentTransactions(txsList.slice(0, 5)); // Get last 5 transactions
+                setIsLoading(false);
+            }, error => {
+                console.error("Error fetching transactions for dashboard:", error);
+                setIsLoading(false);
+            });
+
+
+            return () => {
+                itemsUnsubscribe();
+                txsUnsubscribe();
+            };
+        } else {
+            setIsLoading(false);
+            setSummary({ totalItems: 0, lowStockItems: 0, stockInToday: 0, stockOutToday: 0 });
+            setRecentTransactions([]);
+        }
+    }, [user]);
+
+    const summaryCards = useMemo(() => [
+        { title: "Total Barang", value: summary.totalItems.toLocaleString(), icon: Boxes },
+        { title: "Barang Stok Rendah", value: summary.lowStockItems.toLocaleString(), icon: AlertTriangle },
+        { title: "Stok Masuk (Hari Ini)", value: summary.stockInToday.toLocaleString(), icon: ArrowDownLeft },
+        { title: "Stok Keluar (Hari Ini)", value: summary.stockOutToday.toLocaleString(), icon: ArrowUpRight },
+    ], [summary]);
+
     return (
         <AppLayout pageTitle="Dashboard">
             <div className="space-y-8">
@@ -26,8 +84,11 @@ export default function DashboardPage() {
                                 <card.icon className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{card.value}</div>
-                                {card.trend && <p className="text-xs text-muted-foreground">{card.trend}</p>}
+                                {isLoading ? (
+                                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                ) : (
+                                    <div className="text-2xl font-bold">{card.value}</div>
+                                )}
                             </CardContent>
                         </Card>
                     ))}
@@ -49,7 +110,13 @@ export default function DashboardPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {recentTransactions.length > 0 ? (
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">
+                                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                        </TableCell>
+                                    </TableRow>
+                                ) : recentTransactions.length > 0 ? (
                                     recentTransactions.map((tx) => (
                                         <TableRow key={tx.id}>
                                             <TableCell>
@@ -57,13 +124,13 @@ export default function DashboardPage() {
                                                 <div className="text-sm text-muted-foreground">{tx.item}</div>
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                <Badge variant={tx.type === 'in' ? 'secondary' : 'outline'} className={tx.type === 'in' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                                                <Badge variant={tx.type === 'in' ? 'secondary' : 'outline'} className={tx.type === 'in' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}>
                                                     {tx.type === 'in' ? 'masuk' : 'keluar'}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-right font-medium">{tx.quantity}</TableCell>
+                                            <TableCell className="text-right font-medium">{tx.quantity.toLocaleString()}</TableCell>
                                             <TableCell>{tx.actor}</TableCell>
-                                            <TableCell>{new Date(tx.date).toLocaleDateString()}</TableCell>
+                                            <TableCell>{new Date(tx.date).toLocaleDateString('id-ID')}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (

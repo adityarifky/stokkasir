@@ -13,50 +13,120 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import type { StockItem } from "@/lib/types";
+import type { StockItem, Transaction } from "@/lib/types";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, doc, runTransaction } from "firebase/firestore";
 
 export default function StockInPage() {
-    const [date, setDate] = React.useState<Date>();
-    const [isLoading, setIsLoading] = useState(false);
-    const { toast } = useToast();
-    const [stockItems, setStockItems] = useState<StockItem[]>([]);
-    const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
+    const { user } = useAuth();
     const router = useRouter();
+    const { toast } = useToast();
+
+    // Form State
+    const [date, setDate] = useState<Date>();
+    const [selectedItemId, setSelectedItemId] = useState<string>('');
+    const [quantity, setQuantity] = useState('');
+    const [staffName, setStaffName] = useState('');
+    const [notes, setNotes] = useState('');
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [stockItems, setStockItems] = useState<StockItem[]>([]);
+    const [isFetchingItems, setIsFetchingItems] = useState(true);
+
+    const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
 
     useEffect(() => {
-        try {
-            const savedItems = localStorage.getItem('stockItems');
-            if (savedItems) {
-                setStockItems(JSON.parse(savedItems));
-            }
-        } catch (error) {
-            console.error("Gagal memuat barang dari localStorage", error);
-            toast({
-                variant: "destructive",
-                title: "Gagal memuat data barang",
-                description: "Tidak dapat mengambil daftar barang. Coba segarkan halaman.",
-            });
+        if (user) {
+            const fetchItems = async () => {
+                setIsFetchingItems(true);
+                try {
+                    const itemsColRef = collection(db, `users/${user.uid}/items`);
+                    const q = query(itemsColRef);
+                    const querySnapshot = await getDocs(q);
+                    const itemsList = querySnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    } as StockItem));
+                    setStockItems(itemsList);
+                } catch (error) {
+                    console.error("Gagal memuat data barang:", error);
+                    toast({
+                        variant: "destructive",
+                        title: "Gagal memuat data barang",
+                        description: "Tidak dapat mengambil daftar barang. Coba segarkan halaman.",
+                    });
+                } finally {
+                    setIsFetchingItems(false);
+                }
+            };
+            fetchItems();
         }
-    }, [toast]);
+    }, [user, toast]);
 
-    const handleItemSelect = (itemId: string) => {
-        const item = stockItems.find(i => i.id === itemId) || null;
-        setSelectedItem(item);
+    const resetForm = () => {
+        setDate(undefined);
+        setSelectedItemId('');
+        setQuantity('');
+        setStaffName('');
+        setNotes('');
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!user || !selectedItem || !quantity || !date || !staffName) {
+            toast({ variant: "destructive", title: "Formulir tidak lengkap", description: "Mohon isi semua kolom yang wajib diisi." });
+            return;
+        }
+        
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
+
+        try {
+            const itemRef = doc(db, `users/${user.uid}/items`, selectedItem.id);
+            const transactionsColRef = collection(db, `users/${user.uid}/transactions`);
+
+            await runTransaction(db, async (transaction) => {
+                const itemDoc = await transaction.get(itemRef);
+                if (!itemDoc.exists()) {
+                    throw "Barang tidak ditemukan!";
+                }
+
+                const currentQuantity = itemDoc.data().quantity;
+                const newQuantity = currentQuantity + parseInt(quantity, 10);
+                
+                transaction.update(itemRef, { quantity: newQuantity });
+
+                const newTransaction: Omit<Transaction, 'id'> = {
+                    item: selectedItem.id,
+                    itemName: selectedItem.name,
+                    type: 'in',
+                    quantity: parseInt(quantity, 10),
+                    actor: staffName,
+                    date: date.toISOString(), // Store as ISO string
+                };
+                
+                transaction.set(doc(transactionsColRef), newTransaction);
+            });
+            
             toast({
                 title: "Berhasil!",
                 description: "Stok telah berhasil ditambahkan.",
             });
+            resetForm();
+
+        } catch (error) {
+            console.error("Error adding stock: ", error);
+             toast({
+                variant: "destructive",
+                title: "Gagal menyimpan",
+                description: `Terjadi kesalahan: ${error}`,
+            });
+        } finally {
             setIsLoading(false);
-        }, 1500);
+        }
     }
 
     return (
@@ -81,9 +151,9 @@ export default function StockInPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div className="space-y-2">
                                 <Label htmlFor="item">Bahan Baku <span className="text-destructive">*</span></Label>
-                                <Select onValueChange={handleItemSelect} value={selectedItem?.id || ""} disabled={stockItems.length === 0}>
+                                <Select onValueChange={setSelectedItemId} value={selectedItemId} disabled={isFetchingItems || stockItems.length === 0}>
                                     <SelectTrigger id="item">
-                                        <SelectValue placeholder="Pilih bahan baku..." />
+                                        <SelectValue placeholder={isFetchingItems ? "Memuat barang..." : "Pilih bahan baku..."} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {stockItems.length > 0 ? (
@@ -102,15 +172,15 @@ export default function StockInPage() {
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="staff">Nama Staff Pengisi <span className="text-destructive">*</span></Label>
-                                <Input id="staff" placeholder="Pilih nama staff..." />
+                                <Input id="staff" placeholder="Pilih nama staff..." value={staffName} onChange={e => setStaffName(e.target.value)} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="quantity">Jumlah <span className="text-destructive">*</span></Label>
-                                <Input id="quantity" type="number" placeholder="e.g., 10" />
+                                <Input id="quantity" type="number" placeholder="e.g., 10" value={quantity} onChange={e => setQuantity(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="unit">Satuan <span className="text-destructive">*</span></Label>
-                                <Input id="unit" value={selectedItem?.unit || ''} placeholder="Pilih satuan..." disabled />
+                                <Label htmlFor="unit">Satuan</Label>
+                                <Input id="unit" value={selectedItem?.unit || ''} placeholder="Satuan akan terisi otomatis" disabled />
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="date">Tanggal <span className="text-destructive">*</span></Label>
@@ -139,7 +209,7 @@ export default function StockInPage() {
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="notes">Catatan (Opsional)</Label>
-                                <Textarea id="notes" placeholder="Tambahkan catatan jika perlu..."/>
+                                <Textarea id="notes" placeholder="Tambahkan catatan jika perlu..." value={notes} onChange={e => setNotes(e.target.value)} />
                             </div>
                         </div>
                     </CardContent>

@@ -6,23 +6,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Boxes, AlertTriangle, CheckCircle } from "lucide-react";
+import { Download, Boxes, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 import type { StockItem } from "@/lib/types";
+import { useAuth } from '@/contexts/auth-context';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 export default function ReportPage() {
+    const { user } = useAuth();
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState('');
 
     useEffect(() => {
-        try {
-            const savedItems = localStorage.getItem('stockItems');
-            if (savedItems) {
-                setStockItems(JSON.parse(savedItems));
-            }
-        } catch (error) {
-            console.error("Gagal memuat barang dari localStorage", error);
+        if (user) {
+            setIsLoading(true);
+            const itemsColRef = collection(db, `users/${user.uid}/items`);
+            const q = query(itemsColRef, orderBy("name", "asc"));
+
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const itemsList = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as StockItem));
+                setStockItems(itemsList);
+                setIsLoading(false);
+            }, (error) => {
+                console.error("Gagal mengambil data laporan:", error);
+                setIsLoading(false);
+            });
+
+            return () => unsubscribe();
+        } else {
+            setStockItems([]);
+            setIsLoading(false);
         }
 
+    }, [user]);
+
+    useEffect(() => {
         const today = new Date();
         const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         setCurrentDate(today.toLocaleDateString('id-ID', options));
@@ -84,7 +106,13 @@ export default function ReportPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {stockItems.length > 0 ? (
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="h-24 text-center">
+                                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                        </TableCell>
+                                    </TableRow>
+                                ) : stockItems.length > 0 ? (
                                     stockItems.map((item, index) => (
                                         <TableRow key={item.id}>
                                             <TableCell>{index + 1}</TableCell>

@@ -1,12 +1,46 @@
+"use client";
+
 import AppLayout from "@/components/layout/app-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { StockItem } from "@/lib/types";
 import { Progress } from "@/components/ui/progress";
 import Image from 'next/image';
-
-const stockItems: StockItem[] = [];
+import { useAuth } from "@/contexts/auth-context";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function CurrentStockPage() {
+    const { user } = useAuth();
+    const [stockItems, setStockItems] = useState<StockItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (user) {
+            setIsLoading(true);
+            const itemsColRef = collection(db, `users/${user.uid}/items`);
+            const q = query(itemsColRef, orderBy("name", "asc"));
+
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const itemsList = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as StockItem));
+                setStockItems(itemsList);
+                setIsLoading(false);
+            }, (error) => {
+                console.error("Gagal mengambil data stok:", error);
+                setIsLoading(false);
+            });
+
+            return () => unsubscribe();
+        } else {
+            setStockItems([]);
+            setIsLoading(false);
+        }
+    }, [user]);
+
     return (
         <AppLayout pageTitle="Stok Saat Ini">
             <Card>
@@ -16,7 +50,12 @@ export default function CurrentStockPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
-                        {stockItems.length > 0 ? (
+                        {isLoading ? (
+                            <div className="text-center text-muted-foreground py-12">
+                                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                <p className="mt-2">Memuat data stok...</p>
+                            </div>
+                        ) : stockItems.length > 0 ? (
                             stockItems.map((item) => {
                                 const stockPercentage = Math.min((item.quantity / (item.lowStockThreshold * 2)) * 100, 100);
                                 const isLowStock = item.quantity <= item.lowStockThreshold;

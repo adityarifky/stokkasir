@@ -1,5 +1,7 @@
+"use client";
+
 import AppLayout from "@/components/layout/app-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { Transaction } from "@/lib/types";
@@ -7,12 +9,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ListFilter } from "lucide-react";
+import { ListFilter, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { useState, useEffect, useMemo } from "react";
 
+function HistoryTable({ transactions, isLoading }: { transactions: Transaction[], isLoading: boolean }) {
+    if (isLoading) {
+        return (
+             <div className="flex justify-center items-center h-24">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
-const allTransactions: Transaction[] = [];
-
-function HistoryTable({ transactions }: { transactions: Transaction[] }) {
     return (
         <Table>
             <TableHeader>
@@ -39,7 +50,7 @@ function HistoryTable({ transactions }: { transactions: Transaction[] }) {
                             </TableCell>
                             <TableCell className="text-right font-medium">{tx.quantity}</TableCell>
                             <TableCell>{tx.actor}</TableCell>
-                            <TableCell>{new Date(tx.date).toLocaleString()}</TableCell>
+                            <TableCell>{new Date(tx.date).toLocaleString('id-ID')}</TableCell>
                         </TableRow>
                     ))
                 ) : (
@@ -55,8 +66,37 @@ function HistoryTable({ transactions }: { transactions: Transaction[] }) {
 }
 
 export default function HistoryPage() {
-    const stockInTxs = allTransactions.filter(tx => tx.type === 'in');
-    const stockOutTxs = allTransactions.filter(tx => tx.type === 'out');
+    const { user } = useAuth();
+    const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (user) {
+            setIsLoading(true);
+            const txsColRef = collection(db, `users/${user.uid}/transactions`);
+            const q = query(txsColRef, orderBy("date", "desc"));
+
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const txsList = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Transaction));
+                setAllTransactions(txsList);
+                setIsLoading(false);
+            }, (error) => {
+                console.error("Gagal mengambil riwayat transaksi:", error);
+                setIsLoading(false);
+            });
+
+            return () => unsubscribe();
+        } else {
+            setAllTransactions([]);
+            setIsLoading(false);
+        }
+    }, [user]);
+    
+    const stockInTxs = useMemo(() => allTransactions.filter(tx => tx.type === 'in'), [allTransactions]);
+    const stockOutTxs = useMemo(() => allTransactions.filter(tx => tx.type === 'out'), [allTransactions]);
     
     return (
         <AppLayout pageTitle="Riwayat Transaksi">
@@ -95,13 +135,13 @@ export default function HistoryPage() {
                 <Card className="mt-4">
                     <CardContent className="pt-6">
                         <TabsContent value="all">
-                            <HistoryTable transactions={allTransactions} />
+                            <HistoryTable transactions={allTransactions} isLoading={isLoading} />
                         </TabsContent>
                         <TabsContent value="stock-in">
-                            <HistoryTable transactions={stockInTxs} />
+                            <HistoryTable transactions={stockInTxs} isLoading={isLoading} />
                         </TabsContent>
                         <TabsContent value="stock-out">
-                            <HistoryTable transactions={stockOutTxs} />
+                            <HistoryTable transactions={stockOutTxs} isLoading={isLoading} />
                         </TabsContent>
                     </CardContent>
                 </Card>
