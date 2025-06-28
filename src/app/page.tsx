@@ -7,7 +7,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center">
           <Image
-            src="/logo.png"
+            src="/Desain tanpa judul (2).png"
             alt="Logo Aplikasi"
             width={100}
             height={100}
