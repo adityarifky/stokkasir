@@ -33,10 +33,11 @@ export default function StockOutPage() {
     const [isFetchingItems, setIsFetchingItems] = useState(true);
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
+    const destinations = ["Dapur Utama", "Cabang A", "Cabang B", "Event Catering", "Klien A"];
 
     useEffect(() => {
         if (selectedItem) {
-            setUnit(selectedItem.unit);
+            // Unit selection is now manual
         } else {
             setUnit('');
         }
@@ -189,7 +190,16 @@ export default function StockOutPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="destination">Tujuan <span className="text-destructive">*</span></Label>
-                                <Input id="destination" placeholder="cth., Klien #123" value={destination} onChange={e => setDestination(e.target.value)} />
+                                <Select onValueChange={setDestination} value={destination}>
+                                    <SelectTrigger id="destination">
+                                        <SelectValue placeholder="Pilih tujuan..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {destinations.map(name => (
+                                            <SelectItem key={name} value={name}>{name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="quantity">Jumlah <span className="text-destructive">*</span></Label>
