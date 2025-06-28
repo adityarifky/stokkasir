@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function CurrentStockPage() {
     const { user } = useAuth();
@@ -112,67 +113,79 @@ export default function CurrentStockPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="px-0 pt-0">
-                        <div className="grid grid-cols-5 gap-4 px-6 py-3 font-medium text-muted-foreground border-b bg-muted/50">
-                            <div className="col-span-1">Nama Bahan</div>
-                            <div className="col-span-1">Stok Saat Ini</div>
-                            <div className="col-span-1">Batas Minimum</div>
-                            <div className="col-span-1">Catatan Urgent</div>
-                            <div className="col-span-1">Status</div>
-                        </div>
-                        <div className="divide-y divide-border">
-                             {isLoading ? (
-                                <div className="text-center text-muted-foreground py-24">
-                                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                                    <p className="mt-2">Memuat data stok...</p>
-                                </div>
-                            ) : stockItems.length > 0 ? (
-                                stockItems.map((item) => {
-                                    const isLowStock = item.quantity <= item.lowStockThreshold;
-                                    const stockPercentage = item.lowStockThreshold > 0 ? Math.min((item.quantity / (item.lowStockThreshold * 2)) * 100, 100) : 100;
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Nama Bahan</TableHead>
+                                    <TableHead className="w-[200px]">Stok Saat Ini</TableHead>
+                                    <TableHead>Batas Minimum</TableHead>
+                                    <TableHead>Catatan Urgent</TableHead>
+                                    <TableHead>Status</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                             <TableBody>
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">
+                                            <div className="text-center text-muted-foreground py-10">
+                                                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                                <p className="mt-2">Memuat data stok...</p>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : stockItems.length > 0 ? (
+                                    stockItems.map((item) => {
+                                        const isLowStock = item.quantity <= item.lowStockThreshold;
+                                        const stockPercentage = item.lowStockThreshold > 0 ? Math.min((item.quantity / (item.lowStockThreshold * 2)) * 100, 100) : 100;
 
-                                    return (
-                                        <div key={item.id} className="grid grid-cols-5 gap-4 items-center px-6 py-4">
-                                            <div className="font-medium">{item.name}</div>
-                                            <div>
-                                                <p className={`font-bold text-lg ${isLowStock ? 'text-destructive' : 'text-foreground'}`}>
-                                                    {item.quantity.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{item.unit}</span>
-                                                </p>
-                                                <Progress value={stockPercentage} className={`h-1.5 mt-2 ${isLowStock ? '[&>div]:bg-destructive' : ''}`} />
+                                        return (
+                                            <TableRow key={item.id}>
+                                                <TableCell className="font-medium">{item.name}</TableCell>
+                                                <TableCell>
+                                                    <p className={`font-bold text-lg ${isLowStock ? 'text-destructive' : 'text-foreground'}`}>
+                                                        {item.quantity.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{item.unit}</span>
+                                                    </p>
+                                                    <Progress value={stockPercentage} className={`h-1.5 mt-2 ${isLowStock ? '[&>div]:bg-destructive' : ''}`} />
+                                                </TableCell>
+                                                <TableCell>{item.lowStockThreshold.toLocaleString()} {item.unit}</TableCell>
+                                                <TableCell>
+                                                    {item.urgentNote ? (
+                                                        <div>
+                                                            <p className="text-sm text-primary font-semibold">{item.urgentNote}</p>
+                                                            <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary" onClick={() => openNoteDialog(item)}>
+                                                                <Edit className="h-3 w-3 mr-1" />
+                                                                Edit Catatan
+                                                            </Button>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <p className="text-xs text-muted-foreground italic">Belum ada catatan</p>
+                                                             <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary" onClick={() => openNoteDialog(item)}>
+                                                                <PlusCircle className="h-3 w-3 mr-1" />
+                                                                Tambah Catatan
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {getStatusBadge(item)}
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">
+                                            <div className="text-center text-muted-foreground py-10">
+                                                <p className="font-semibold">Belum ada stok barang.</p>
+                                                <p className="text-sm">Tambahkan barang melalui menu 'Daftar Barang' untuk memulai.</p>
                                             </div>
-                                            <div>{item.lowStockThreshold.toLocaleString()} {item.unit}</div>
-                                            <div>
-                                                {item.urgentNote ? (
-                                                    <div>
-                                                        <p className="text-sm text-primary font-semibold">{item.urgentNote}</p>
-                                                        <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary" onClick={() => openNoteDialog(item)}>
-                                                            <Edit className="h-3 w-3 mr-1" />
-                                                            Edit Catatan
-                                                        </Button>
-                                                    </div>
-                                                ) : (
-                                                    <div>
-                                                        <p className="text-xs text-muted-foreground italic">Belum ada catatan</p>
-                                                         <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary" onClick={() => openNoteDialog(item)}>
-                                                            <PlusCircle className="h-3 w-3 mr-1" />
-                                                            Tambah Catatan
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                {getStatusBadge(item)}
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            ) : (
-                                <div className="text-center text-muted-foreground py-24">
-                                    <p className="font-semibold">Belum ada stok barang.</p>
-                                    <p className="text-sm">Tambahkan barang melalui menu 'Daftar Barang' untuk memulai.</p>
-                                </div>
-                            )}
-                        </div>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
                     </CardContent>
                 </Card>
             </div>

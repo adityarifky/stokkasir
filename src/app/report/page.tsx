@@ -263,7 +263,7 @@ export default function ReportPage() {
 
                 <Card>
                     <CardHeader>
-                        <div className="flex items-start justify-between">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                            <div className="flex items-center gap-4">
                                <div className="text-primary">
                                    <Boxes className="h-8 w-8" />
@@ -273,7 +273,7 @@ export default function ReportPage() {
                                    <CardDescription>Menampilkan {stockItems.length} jenis bahan baku terdaftar.</CardDescription>
                                </div>
                            </div>
-                           <Button variant="outline" onClick={handleDetailExport}>
+                           <Button variant="outline" onClick={handleDetailExport} className="w-full sm:w-auto">
                                <Download className="mr-2 h-4 w-4"/>
                                Export Rincian Stok
                            </Button>
@@ -340,7 +340,7 @@ export default function ReportPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className='border rounded-lg p-4 mb-6 flex items-center gap-4 flex-wrap'>
+                        <div className='border rounded-lg p-4 mb-6 flex items-end gap-4 flex-wrap'>
                             <div className='space-y-2'>
                                 <Label htmlFor="date">Rentang Tanggal</Label>
                                 <Popover>
@@ -349,7 +349,7 @@ export default function ReportPage() {
                                             id="date"
                                             variant={"outline"}
                                             className={cn(
-                                                "w-[300px] justify-start text-left font-normal",
+                                                "w-full sm:w-[300px] justify-start text-left font-normal",
                                                 !dateRange && "text-muted-foreground"
                                             )}
                                             >
@@ -369,11 +369,11 @@ export default function ReportPage() {
                                     </PopoverContent>
                                 </Popover>
                             </div>
-                            <Button onClick={handleGenerateAccumulationReport} disabled={isGenerating || !dateRange?.from} className="self-end">
+                            <Button onClick={handleGenerateAccumulationReport} disabled={isGenerating || !dateRange?.from}>
                                 {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Generate
                             </Button>
-                             <Button variant="outline" onClick={handleAccumulationExport} disabled={accumulationData.length === 0} className="self-end">
+                             <Button variant="outline" onClick={handleAccumulationExport} disabled={accumulationData.length === 0}>
                                <Download className="mr-2 h-4 w-4"/>
                                Export
                            </Button>

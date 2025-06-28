@@ -143,12 +143,12 @@ export default function ItemsPage() {
     return (
         <AppLayout pageTitle="Daftar Barang">
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <CardTitle>Daftar Barang</CardTitle>
                         <CardDescription>Kelola produk dan detailnya.</CardDescription>
                     </div>
-                     <Button size="sm" className="gap-1" onClick={openAddDialog}>
+                     <Button size="sm" className="gap-1 w-full sm:w-auto" onClick={openAddDialog}>
                         <PlusCircle className="h-4 w-4" />
                         Tambah Barang
                     </Button>

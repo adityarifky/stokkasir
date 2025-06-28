@@ -118,13 +118,13 @@ export default function HistoryPage() {
     return (
         <AppLayout pageTitle="Riwayat Transaksi">
              <Tabs defaultValue="all">
-                <div className="flex items-center">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <TabsList>
                         <TabsTrigger value="all">Semua</TabsTrigger>
                         <TabsTrigger value="stock-in">Stok Masuk</TabsTrigger>
                         <TabsTrigger value="stock-out">Stok Keluar</TabsTrigger>
                     </TabsList>
-                    <div className="ml-auto flex items-center gap-2">
+                    <div className="flex w-full sm:w-auto items-center gap-2">
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8 gap-1">
@@ -145,7 +145,7 @@ export default function HistoryPage() {
                         </DropdownMenu>
                          <Input
                             placeholder="Cari transaksi..."
-                            className="h-8 w-[150px] lg:w-[250px]"
+                            className="h-8 w-full sm:w-[150px] lg:w-[250px]"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
