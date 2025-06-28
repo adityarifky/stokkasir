@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/app-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,21 @@ export default function ItemsPage() {
     const [name, setName] = useState('');
     const [unit, setUnit] = useState<'Pack' | 'Pcs' | 'Roll' | 'Box' | ''>('');
     const [lowStockThreshold, setLowStockThreshold] = useState('');
+
+    useEffect(() => {
+        try {
+            const savedItems = localStorage.getItem('stockItems');
+            if (savedItems) {
+                setStockItems(JSON.parse(savedItems));
+            }
+        } catch (error) {
+            console.error("Gagal memuat barang dari localStorage", error);
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('stockItems', JSON.stringify(stockItems));
+    }, [stockItems]);
 
     const handleAddItem = (e: React.FormEvent) => {
         e.preventDefault();

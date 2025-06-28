@@ -11,14 +11,33 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import type { StockItem } from "@/lib/types";
 
 
 export default function StockInPage() {
     const [date, setDate] = React.useState<Date>();
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
+    const [stockItems, setStockItems] = useState<StockItem[]>([]);
+    const [selectedItem, setSelectedItem] = useState("");
+
+    useEffect(() => {
+        try {
+            const savedItems = localStorage.getItem('stockItems');
+            if (savedItems) {
+                setStockItems(JSON.parse(savedItems));
+            }
+        } catch (error) {
+            console.error("Gagal memuat barang dari localStorage", error);
+            toast({
+                variant: "destructive",
+                title: "Gagal memuat data barang",
+                description: "Tidak dapat mengambil daftar barang. Coba segarkan halaman.",
+            });
+        }
+    }, [toast]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -45,15 +64,22 @@ export default function StockInPage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="item">Barang</Label>
-                                <Select>
+                                <Select onValueChange={setSelectedItem} value={selectedItem} disabled={stockItems.length === 0}>
                                     <SelectTrigger id="item">
                                         <SelectValue placeholder="Pilih barang" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="sku-001">Gold Bar 1oz (SKU-001)</SelectItem>
-                                        <SelectItem value="sku-002">Gold Coin (SKU-002)</SelectItem>
-                                        <SelectItem value="sku-003">Silver Bar 1kg (SKU-003)</SelectItem>
-                                        <SelectItem value="sku-004">Platinum Coin (SKU-004)</SelectItem>
+                                        {stockItems.length > 0 ? (
+                                            stockItems.map(item => (
+                                                <SelectItem key={item.id} value={item.id}>
+                                                    {item.name} ({item.sku})
+                                                </SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="no-items" disabled>
+                                                Tambahkan barang di menu 'Daftar Barang'
+                                            </SelectItem>
+                                        )}
                                     </SelectContent>
                                 </Select>
                             </div>
