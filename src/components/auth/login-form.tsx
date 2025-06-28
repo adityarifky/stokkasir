@@ -57,7 +57,6 @@ export function LoginForm() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Selamat Datang Bro!</CardTitle>
-        <CardDescription>Monggo Diisi Yang Benar Yaaa</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
