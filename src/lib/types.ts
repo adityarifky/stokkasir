@@ -15,4 +15,5 @@ export type StockItem = {
   unit: 'Pack' | 'Pcs' | 'Roll' | 'Box';
   quantity: number;
   lowStockThreshold: number;
+  urgentNote?: string;
 };
