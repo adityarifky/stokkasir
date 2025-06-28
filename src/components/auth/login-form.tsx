@@ -15,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
@@ -105,14 +104,6 @@ export function LoginForm() {
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2">
-        <div className="text-sm text-muted-foreground">
-          Belum punya akun?{" "}
-          <Link href="/signup" className="text-primary hover:underline">
-            Daftar
-          </Link>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
