@@ -98,7 +98,7 @@ export default function DashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Stok Barang Menipis</CardTitle>
-                        <CardDescription>Barang yang perlu segera diisi ulang.</CardDescription>
+                        <CardDescription>Barang yang perlu segera di order lagi.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
