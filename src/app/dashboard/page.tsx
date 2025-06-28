@@ -6,10 +6,10 @@ import { ArrowUpRight, ArrowDownLeft, Boxes, AlertTriangle, Package } from "luci
 import type { Transaction } from "@/lib/types";
 
 const summaryCards = [
-    { title: "Total Items", value: "1,250", icon: Boxes, trend: "+1.2%" },
-    { title: "Items Low on Stock", value: "15", icon: AlertTriangle, trend: "+2", isWarning: true },
-    { title: "Stock In (Today)", value: "320", icon: ArrowDownLeft },
-    { title: "Stock Out (Today)", value: "180", icon: ArrowUpRight },
+    { title: "Total Barang", value: "1,250", icon: Boxes, trend: "+1.2%" },
+    { title: "Barang Stok Rendah", value: "15", icon: AlertTriangle, trend: "+2", isWarning: true },
+    { title: "Stok Masuk (Hari Ini)", value: "320", icon: ArrowDownLeft },
+    { title: "Stok Keluar (Hari Ini)", value: "180", icon: ArrowUpRight },
 ];
 
 const recentTransactions: Transaction[] = [
@@ -33,7 +33,7 @@ export default function DashboardPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{card.value}</div>
-                                {card.trend && <p className="text-xs text-muted-foreground">{card.trend} from last month</p>}
+                                {card.trend && <p className="text-xs text-muted-foreground">{card.trend} dari bulan lalu</p>}
                             </CardContent>
                         </Card>
                     ))}
@@ -41,17 +41,17 @@ export default function DashboardPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Recent Transactions</CardTitle>
+                        <CardTitle>Transaksi Terkini</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Item</TableHead>
-                                    <TableHead className="text-center">Type</TableHead>
-                                    <TableHead className="text-right">Quantity</TableHead>
-                                    <TableHead>Supplier/Destination</TableHead>
-                                    <TableHead>Date</TableHead>
+                                    <TableHead>Barang</TableHead>
+                                    <TableHead className="text-center">Jenis</TableHead>
+                                    <TableHead className="text-right">Jumlah</TableHead>
+                                    <TableHead>Pemasok/Tujuan</TableHead>
+                                    <TableHead>Tanggal</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -63,7 +63,7 @@ export default function DashboardPage() {
                                         </TableCell>
                                         <TableCell className="text-center">
                                             <Badge variant={tx.type === 'in' ? 'secondary' : 'outline'} className={tx.type === 'in' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                                                {tx.type}
+                                                {tx.type === 'in' ? 'masuk' : 'keluar'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right font-medium">{tx.quantity}</TableCell>

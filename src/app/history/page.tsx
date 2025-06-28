@@ -26,11 +26,11 @@ function HistoryTable({ transactions }: { transactions: Transaction[] }) {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Item</TableHead>
-                    <TableHead className="text-center">Type</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead>Supplier/Destination</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead>Barang</TableHead>
+                    <TableHead className="text-center">Jenis</TableHead>
+                    <TableHead className="text-right">Jumlah</TableHead>
+                    <TableHead>Pemasok/Tujuan</TableHead>
+                    <TableHead>Tanggal</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -42,7 +42,7 @@ function HistoryTable({ transactions }: { transactions: Transaction[] }) {
                         </TableCell>
                         <TableCell className="text-center">
                             <Badge variant={tx.type === 'in' ? 'secondary' : 'outline'} className={tx.type === 'in' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}>
-                                {tx.type === 'in' ? 'Stock In' : 'Stock Out'}
+                                {tx.type === 'in' ? 'Stok Masuk' : 'Stok Keluar'}
                             </Badge>
                         </TableCell>
                         <TableCell className="text-right font-medium">{tx.quantity}</TableCell>
@@ -64,9 +64,9 @@ export default function HistoryPage() {
              <Tabs defaultValue="all">
                 <div className="flex items-center">
                     <TabsList>
-                        <TabsTrigger value="all">All</TabsTrigger>
-                        <TabsTrigger value="stock-in">Stock In</TabsTrigger>
-                        <TabsTrigger value="stock-out">Stock Out</TabsTrigger>
+                        <TabsTrigger value="all">Semua</TabsTrigger>
+                        <TabsTrigger value="stock-in">Stok Masuk</TabsTrigger>
+                        <TabsTrigger value="stock-out">Stok Keluar</TabsTrigger>
                     </TabsList>
                     <div className="ml-auto flex items-center gap-2">
                         <DropdownMenu>
@@ -79,16 +79,16 @@ export default function HistoryPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                            <DropdownMenuLabel>Filter berdasarkan</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuCheckboxItem checked>
-                            Date
+                            Tanggal
                             </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem>Item Name</DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem>Nama Barang</DropdownMenuCheckboxItem>
                         </DropdownMenuContent>
                         </DropdownMenu>
                          <Input
-                            placeholder="Search transactions..."
+                            placeholder="Cari transaksi..."
                             className="h-8 w-[150px] lg:w-[250px]"
                         />
                     </div>

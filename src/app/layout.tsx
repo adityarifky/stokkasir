@@ -4,8 +4,8 @@ import { AuthProvider } from '@/contexts/auth-context';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'GoldStock Inventory',
-  description: 'Inventory management with a touch of gold.',
+  title: 'Inventaris GoldStock',
+  description: 'Manajemen inventaris dengan sentuhan emas.',
 };
 
 export default function RootLayout({

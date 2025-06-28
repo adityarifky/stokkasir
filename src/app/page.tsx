@@ -9,8 +9,8 @@ export default function LoginPage() {
           <div className="mb-4 rounded-full bg-primary/20 p-4 text-primary">
             <Warehouse className="h-12 w-12" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">GoldStock Inventory</h1>
-          <p className="text-muted-foreground">Welcome back! Please log in to your account.</p>
+          <h1 className="text-3xl font-bold text-foreground">Inventaris GoldStock</h1>
+          <p className="text-muted-foreground">Selamat datang kembali! Silakan masuk ke akun Anda.</p>
         </div>
         <LoginForm />
       </div>

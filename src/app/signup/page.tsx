@@ -9,8 +9,8 @@ export default function SignupPage() {
            <div className="mb-4 rounded-full bg-primary/20 p-4 text-primary">
             <Warehouse className="h-12 w-12" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Create an Account</h1>
-          <p className="text-muted-foreground">Join GoldStock Inventory today.</p>
+          <h1 className="text-3xl font-bold text-foreground">Buat Akun</h1>
+          <p className="text-muted-foreground">Bergabunglah dengan Inventaris GoldStock hari ini.</p>
         </div>
         <SignupForm />
       </div>

@@ -21,8 +21,8 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  email: z.string().email({ message: "Alamat email tidak valid." }),
+  password: z.string().min(6, { message: "Kata sandi minimal harus 6 karakter." }),
 });
 
 export function LoginForm() {
@@ -47,8 +47,8 @@ export function LoginForm() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Login Failed",
-        description: "Invalid credentials, please try again.",
+        title: "Gagal Masuk",
+        description: "Kredensial tidak valid, silakan coba lagi.",
       });
       setIsLoading(false);
     }
@@ -57,8 +57,8 @@ export function LoginForm() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>Enter your credentials to access your account.</CardDescription>
+        <CardTitle>Masuk</CardTitle>
+        <CardDescription>Masukkan kredensial Anda untuk mengakses akun Anda.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -70,7 +70,7 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input placeholder="nama@contoh.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -81,7 +81,7 @@ export function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Kata Sandi</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
@@ -91,16 +91,16 @@ export function LoginForm() {
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
+              Masuk
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2">
         <div className="text-sm text-muted-foreground">
-          Don't have an account?{" "}
+          Belum punya akun?{" "}
           <Link href="/signup" className="text-primary hover:underline">
-            Sign up
+            Daftar
           </Link>
         </div>
       </CardFooter>

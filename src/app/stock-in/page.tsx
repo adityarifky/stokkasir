@@ -26,8 +26,8 @@ export default function StockInPage() {
         // Simulate API call
         setTimeout(() => {
             toast({
-                title: "Success!",
-                description: "Stock has been successfully added.",
+                title: "Berhasil!",
+                description: "Stok telah berhasil ditambahkan.",
             });
             setIsLoading(false);
         }, 1500);
@@ -39,15 +39,15 @@ export default function StockInPage() {
                 <form onSubmit={handleSubmit} className="w-full max-w-2xl">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Log Incoming Stock</CardTitle>
-                            <CardDescription>Add new items to your inventory.</CardDescription>
+                            <CardTitle>Catat Stok Masuk</CardTitle>
+                            <CardDescription>Tambahkan barang baru ke inventaris Anda.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="item">Item</Label>
+                                <Label htmlFor="item">Barang</Label>
                                 <Select>
                                     <SelectTrigger id="item">
-                                        <SelectValue placeholder="Select an item" />
+                                        <SelectValue placeholder="Pilih barang" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="sku-001">Gold Bar 1oz (SKU-001)</SelectItem>
@@ -58,15 +58,15 @@ export default function StockInPage() {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="quantity">Quantity</Label>
-                                <Input id="quantity" type="number" placeholder="e.g., 100" />
+                                <Label htmlFor="quantity">Jumlah</Label>
+                                <Input id="quantity" type="number" placeholder="cth., 100" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="supplier">Supplier</Label>
-                                <Input id="supplier" placeholder="e.g., Refinery Inc." />
+                                <Label htmlFor="supplier">Pemasok</Label>
+                                <Input id="supplier" placeholder="cth., Refinery Inc." />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="date">Date</Label>
+                                <Label htmlFor="date">Tanggal</Label>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
@@ -77,7 +77,7 @@ export default function StockInPage() {
                                             )}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                            {date ? format(date, "PPP") : <span>Pilih tanggal</span>}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0">
@@ -94,7 +94,7 @@ export default function StockInPage() {
                         <CardFooter>
                             <Button type="submit" className="w-full" disabled={isLoading}>
                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Add to Stock
+                                Tambahkan ke Stok
                             </Button>
                         </CardFooter>
                     </Card>

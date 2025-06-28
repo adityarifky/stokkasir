@@ -20,7 +20,7 @@ export function UserNav() {
   if (!user) return null;
 
   const getInitials = (email: string) => {
-    return email ? email.substring(0, 2).toUpperCase() : "U";
+    return email ? email.substring(0, 2).toUpperCase() : "P";
   }
 
   return (
@@ -37,7 +37,7 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user.displayName || "User"}
+              {user.displayName || "Pengguna"}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
@@ -48,21 +48,21 @@ export function UserNav() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <UserIcon className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <span>Profil</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <CreditCard className="mr-2 h-4 w-4" />
-            <span>Billing</span>
+            <span>Penagihan</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <span>Pengaturan</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>Keluar</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

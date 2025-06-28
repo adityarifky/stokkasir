@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // MOCK: Simulate a sign-in
     return new Promise(resolve => {
       setTimeout(() => {
-        const mockUser = { uid: '123', email, displayName: 'Test User' };
+        const mockUser = { uid: '123', email, displayName: 'Pengguna Uji' };
         setUser(mockUser);
         sessionStorage.setItem('user', JSON.stringify(mockUser));
         setLoading(false);
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // MOCK: Simulate a sign-up
     return new Promise(resolve => {
       setTimeout(() => {
-        const mockUser = { uid: '123', email: email, displayName: 'Test User' };
+        const mockUser = { uid: '123', email: email, displayName: 'Pengguna Uji' };
         setUser(mockUser);
         sessionStorage.setItem('user', JSON.stringify(mockUser));
         setLoading(false);

@@ -62,7 +62,7 @@ function AppSidebar() {
         <div className="mt-auto p-2">
           <Button onClick={signOut} variant="ghost" className="w-full justify-start gap-2">
             <LogOut className="h-4 w-4" />
-            Sign Out
+            Keluar
           </Button>
         </div>
       </div>

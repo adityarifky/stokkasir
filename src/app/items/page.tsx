@@ -21,25 +21,25 @@ export default function ItemsPage() {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                        <CardTitle>Stock Items</CardTitle>
-                        <CardDescription>Manage your products and their details.</CardDescription>
+                        <CardTitle>Daftar Barang</CardTitle>
+                        <CardDescription>Kelola produk dan detailnya.</CardDescription>
                     </div>
                      <Button size="sm" className="gap-1">
                         <PlusCircle className="h-4 w-4" />
-                        Add Item
+                        Tambah Barang
                     </Button>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[80px]">Image</TableHead>
-                                <TableHead>Name</TableHead>
+                                <TableHead className="w-[80px]">Gambar</TableHead>
+                                <TableHead>Nama</TableHead>
                                 <TableHead>SKU</TableHead>
-                                <TableHead>Category</TableHead>
-                                <TableHead className="text-right">Quantity</TableHead>
+                                <TableHead>Kategori</TableHead>
+                                <TableHead className="text-right">Jumlah</TableHead>
                                 <TableHead>
-                                    <span className="sr-only">Actions</span>
+                                    <span className="sr-only">Aksi</span>
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
@@ -53,7 +53,7 @@ export default function ItemsPage() {
                                             width={48}
                                             height={48}
                                             className="rounded-md"
-                                            data-ai-hint="product image"
+                                            data-ai-hint="gambar produk"
                                         />
                                     </TableCell>
                                     <TableCell className="font-medium">{item.name}</TableCell>
@@ -69,9 +69,9 @@ export default function ItemsPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                                <DropdownMenuItem>Delete</DropdownMenuItem>
+                                                <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                                                <DropdownMenuItem>Ubah</DropdownMenuItem>
+                                                <DropdownMenuItem>Hapus</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

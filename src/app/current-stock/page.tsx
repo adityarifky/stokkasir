@@ -17,8 +17,8 @@ export default function CurrentStockPage() {
         <AppLayout pageTitle="Stok Saat Ini">
             <Card>
                 <CardHeader>
-                    <CardTitle>Current Stock Levels</CardTitle>
-                    <CardDescription>A real-time overview of your inventory.</CardDescription>
+                    <CardTitle>Tingkat Stok Saat Ini</CardTitle>
+                    <CardDescription>Gambaran real-time inventaris Anda.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
@@ -34,7 +34,7 @@ export default function CurrentStockPage() {
                                         width={64}
                                         height={64}
                                         className="rounded-md border-2 border-primary/20"
-                                        data-ai-hint="product image"
+                                        data-ai-hint="gambar produk"
                                     />
                                     <div className="flex-1">
                                         <div className="flex justify-between">
@@ -43,7 +43,7 @@ export default function CurrentStockPage() {
                                         </div>
                                         <Progress value={stockPercentage} className={`h-2 mt-1 ${isLowStock ? '[&>div]:bg-destructive' : ''}`} />
                                         <p className="text-xs text-muted-foreground mt-1">
-                                            Low stock threshold: {item.lowStockThreshold}
+                                            Ambang batas stok rendah: {item.lowStockThreshold}
                                         </p>
                                     </div>
                                 </div>

@@ -17,18 +17,18 @@ const chartData = [
 
 const chartConfig = {
   stockIn: {
-    label: "Stock In",
+    label: "Stok Masuk",
     color: "hsl(var(--chart-2))",
   },
   stockOut: {
-    label: "Stock Out",
+    label: "Stok Keluar",
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig
 
 const pieChartData = [
-  { name: 'Gold', value: 400, fill: 'hsl(var(--primary))' },
-  { name: 'Silver', value: 300, fill: 'hsl(var(--secondary))' },
+  { name: 'Emas', value: 400, fill: 'hsl(var(--primary))' },
+  { name: 'Perak', value: 300, fill: 'hsl(var(--secondary))' },
   { name: 'Platinum', value: 300, fill: 'hsl(var(--muted))' },
 ];
 
@@ -38,8 +38,8 @@ export default function ReportPage() {
             <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Stock In vs. Stock Out</CardTitle>
-                        <CardDescription>Monthly transaction overview for the last 6 months.</CardDescription>
+                        <CardTitle>Stok Masuk vs. Stok Keluar</CardTitle>
+                        <CardDescription>Ringkasan transaksi bulanan selama 6 bulan terakhir.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
@@ -63,8 +63,8 @@ export default function ReportPage() {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Inventory by Category</CardTitle>
-                        <CardDescription>Value distribution across metal categories.</CardDescription>
+                        <CardTitle>Inventaris per Kategori</CardTitle>
+                        <CardDescription>Distribusi nilai di seluruh kategori logam.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex items-center justify-center">
                          <ChartContainer config={{}} className="min-h-[300px] w-full">

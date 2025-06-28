@@ -22,8 +22,8 @@ import { Loader2 } from "lucide-react";
 
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  email: z.string().email({ message: "Alamat email tidak valid." }),
+  password: z.string().min(6, { message: "Kata sandi minimal harus 6 karakter." }),
 });
 
 export function SignupForm() {
@@ -48,8 +48,8 @@ export function SignupForm() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Signup Failed",
-        description: "Could not create an account. Please try again.",
+        title: "Gagal Mendaftar",
+        description: "Tidak dapat membuat akun. Silakan coba lagi.",
       });
       setIsLoading(false);
     }
@@ -58,8 +58,8 @@ export function SignupForm() {
   return (
      <Card className="w-full">
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-        <CardDescription>Enter your details to create a new account.</CardDescription>
+        <CardTitle>Daftar</CardTitle>
+        <CardDescription>Masukkan detail Anda untuk membuat akun baru.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -71,7 +71,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input placeholder="nama@contoh.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,7 +82,7 @@ export function SignupForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Kata Sandi</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
@@ -92,16 +92,16 @@ export function SignupForm() {
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Account
+              Buat Akun
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2">
          <div className="text-sm text-muted-foreground">
-          Already have an account?{" "}
+          Sudah punya akun?{" "}
           <Link href="/" className="text-primary hover:underline">
-            Sign in
+            Masuk
           </Link>
         </div>
       </CardFooter>
