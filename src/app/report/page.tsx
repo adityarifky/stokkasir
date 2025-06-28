@@ -18,6 +18,7 @@ import { DateRange } from 'react-day-picker';
 import { format, startOfMonth } from 'date-fns';
 import { id as a_id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 type AccumulationItem = {
     name: string;
@@ -341,7 +342,7 @@ export default function ReportPage() {
                     <CardContent>
                         <div className='border rounded-lg p-4 mb-6 flex items-center gap-4 flex-wrap'>
                             <div className='space-y-2'>
-                                <Label>Rentang Tanggal</Label>
+                                <Label htmlFor="date">Rentang Tanggal</Label>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
