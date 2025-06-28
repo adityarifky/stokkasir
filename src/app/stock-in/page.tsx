@@ -153,7 +153,7 @@ export default function StockInPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Tambah Barang Kasir Masuk</CardTitle>
-                        <CardDescription>Isi detail bahan baku yang diterima.</CardDescription>
+                        <CardDescription>Isi detail barang kasir yang diterima.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
