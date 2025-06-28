@@ -127,7 +127,7 @@ export default function DashboardPage() {
                                                     {tx.type === 'in' ? 'masuk' : 'keluar'}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-right font-medium">{tx.quantity.toLocaleString()}</TableCell>
+                                            <TableCell className="text-right font-medium">{tx.quantity.toLocaleString()} {tx.unit}</TableCell>
                                             <TableCell>{new Date(tx.date).toLocaleDateString('id-ID')}</TableCell>
                                         </TableRow>
                                     ))

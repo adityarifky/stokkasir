@@ -47,7 +47,7 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
                                     {tx.type === 'in' ? 'Stok Masuk' : 'Stok Keluar'}
                                 </Badge>
                             </TableCell>
-                            <TableCell className="text-right font-medium">{tx.quantity}</TableCell>
+                            <TableCell className="text-right font-medium">{tx.quantity} {tx.unit}</TableCell>
                             <TableCell>{new Date(tx.date).toLocaleString('id-ID')}</TableCell>
                         </TableRow>
                     ))

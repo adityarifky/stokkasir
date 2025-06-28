@@ -26,6 +26,7 @@ export default function StockInPage() {
     const [quantity, setQuantity] = useState('');
     const [staffName, setStaffName] = useState('');
     const [notes, setNotes] = useState('');
+    const [unit, setUnit] = useState<'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs' | ''>('');
 
     const [isLoading, setIsLoading] = useState(false);
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
@@ -33,6 +34,14 @@ export default function StockInPage() {
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
     const staffNames = ["Fina", "Siti", "Fani", "Fara", "Adit", "Ikhsan", "Ratna", "Rifky"];
+
+    useEffect(() => {
+        if (selectedItem) {
+            setUnit(selectedItem.unit);
+        } else {
+            setUnit('');
+        }
+    }, [selectedItem]);
 
 
     useEffect(() => {
@@ -68,12 +77,13 @@ export default function StockInPage() {
         setQuantity('');
         setStaffName('');
         setNotes('');
+        setUnit('');
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!user || !selectedItem || !quantity || !staffName) {
+        if (!user || !selectedItem || !quantity || !staffName || !unit) {
             toast({ variant: "destructive", title: "Formulir tidak lengkap", description: "Mohon isi semua kolom yang wajib diisi." });
             return;
         }
@@ -100,8 +110,10 @@ export default function StockInPage() {
                     itemName: selectedItem.name,
                     type: 'in',
                     quantity: parseInt(quantity, 10),
+                    unit: unit as StockItem['unit'],
                     actor: staffName,
                     date: new Date().toISOString(),
+                    notes: notes,
                 };
                 
                 transaction.set(doc(transactionsColRef), newTransaction);
@@ -184,10 +196,10 @@ export default function StockInPage() {
                                 <Input id="quantity" type="number" placeholder="e.g., 10" value={quantity} onChange={e => setQuantity(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="unit">Satuan</Label>
-                                <Select value={selectedItem?.unit || ''} disabled>
+                                <Label htmlFor="unit">Satuan <span className="text-destructive">*</span></Label>
+                                 <Select onValueChange={(value) => setUnit(value as any)} value={unit}>
                                     <SelectTrigger id="unit">
-                                        <SelectValue placeholder="Satuan akan terisi otomatis" />
+                                        <SelectValue placeholder="Pilih satuan" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Kg">Kg</SelectItem>

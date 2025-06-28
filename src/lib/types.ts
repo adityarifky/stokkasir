@@ -5,7 +5,9 @@ export type Transaction = {
   itemName: string;
   type: 'in' | 'out';
   quantity: number;
+  unit: 'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs';
   actor: string; // Supplier or Destination
+  notes?: string;
 };
 
 export type StockItem = {
