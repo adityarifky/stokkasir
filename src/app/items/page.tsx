@@ -28,7 +28,7 @@ export default function ItemsPage() {
 
     // Form state
     const [name, setName] = useState('');
-    const [unit, setUnit] = useState<'Pack' | 'Pcs' | 'Roll' | 'Box' | ''>('');
+    const [unit, setUnit] = useState<'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs' | ''>('');
     const [lowStockThreshold, setLowStockThreshold] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -209,10 +209,12 @@ export default function ItemsPage() {
                                         <SelectValue placeholder="Pilih satuan" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="Kg">Kg</SelectItem>
+                                        <SelectItem value="Gram">Gram</SelectItem>
+                                        <SelectItem value="ML">ML</SelectItem>
+                                        <SelectItem value="L">L</SelectItem>
                                         <SelectItem value="Pack">Pack</SelectItem>
                                         <SelectItem value="Pcs">Pcs</SelectItem>
-                                        <SelectItem value="Roll">Roll</SelectItem>
-                                        <SelectItem value="Box">Box</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

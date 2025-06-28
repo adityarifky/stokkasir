@@ -6,11 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Loader2, History } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { Loader2, History } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { StockItem, Transaction } from "@/lib/types";
@@ -26,7 +22,6 @@ export default function StockOutPage() {
     const { toast } = useToast();
 
     // Form State
-    const [date, setDate] = useState<Date>();
     const [selectedItemId, setSelectedItemId] = useState<string>('');
     const [quantity, setQuantity] = useState('');
     const [destination, setDestination] = useState('');
@@ -67,7 +62,6 @@ export default function StockOutPage() {
     }, [user, toast]);
 
     const resetForm = () => {
-        setDate(undefined);
         setSelectedItemId('');
         setQuantity('');
         setDestination('');
@@ -77,7 +71,7 @@ export default function StockOutPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!user || !selectedItem || !quantity || !date || !destination) {
+        if (!user || !selectedItem || !quantity || !destination) {
             toast({ variant: "destructive", title: "Formulir tidak lengkap", description: "Mohon isi semua kolom yang wajib diisi." });
             return;
         }
@@ -116,7 +110,7 @@ export default function StockOutPage() {
                     type: 'out',
                     quantity: quantityNum,
                     actor: destination,
-                    date: date.toISOString(),
+                    date: new Date().toISOString(),
                 };
                 
                 transaction.set(doc(transactionsColRef), newTransaction);
@@ -192,31 +186,6 @@ export default function StockOutPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="unit">Satuan</Label>
                                 <Input id="unit" value={selectedItem?.unit || ''} placeholder="Satuan akan terisi otomatis" disabled />
-                            </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="date">Tanggal <span className="text-destructive">*</span></Label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full md:w-[280px] justify-start text-left font-normal",
-                                                !date && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {date ? format(date, "dd MMMM yyyy") : <span>Pilih tanggal</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={date}
-                                            onSelect={setDate}
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="notes">Catatan (Opsional)</Label>

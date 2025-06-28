@@ -6,11 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Loader2, History } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { Loader2, History } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { StockItem, Transaction } from "@/lib/types";
@@ -26,7 +22,6 @@ export default function StockInPage() {
     const { toast } = useToast();
 
     // Form State
-    const [date, setDate] = useState<Date>();
     const [selectedItemId, setSelectedItemId] = useState<string>('');
     const [quantity, setQuantity] = useState('');
     const [staffName, setStaffName] = useState('');
@@ -37,6 +32,8 @@ export default function StockInPage() {
     const [isFetchingItems, setIsFetchingItems] = useState(true);
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
+    const staffNames = ["Fina", "Siti", "Fani", "Fara", "Adit", "Ikhsan", "Ratna", "Rifky"];
+
 
     useEffect(() => {
         if (user) {
@@ -67,7 +64,6 @@ export default function StockInPage() {
     }, [user, toast]);
 
     const resetForm = () => {
-        setDate(undefined);
         setSelectedItemId('');
         setQuantity('');
         setStaffName('');
@@ -77,7 +73,7 @@ export default function StockInPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!user || !selectedItem || !quantity || !date || !staffName) {
+        if (!user || !selectedItem || !quantity || !staffName) {
             toast({ variant: "destructive", title: "Formulir tidak lengkap", description: "Mohon isi semua kolom yang wajib diisi." });
             return;
         }
@@ -105,7 +101,7 @@ export default function StockInPage() {
                     type: 'in',
                     quantity: parseInt(quantity, 10),
                     actor: staffName,
-                    date: date.toISOString(), // Store as ISO string
+                    date: new Date().toISOString(),
                 };
                 
                 transaction.set(doc(transactionsColRef), newTransaction);
@@ -172,7 +168,16 @@ export default function StockInPage() {
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="staff">Nama Staff Pengisi <span className="text-destructive">*</span></Label>
-                                <Input id="staff" placeholder="Pilih nama staff..." value={staffName} onChange={e => setStaffName(e.target.value)} />
+                                <Select onValueChange={setStaffName} value={staffName}>
+                                    <SelectTrigger id="staff">
+                                        <SelectValue placeholder="Pilih nama staff..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {staffNames.map(name => (
+                                            <SelectItem key={name} value={name}>{name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="quantity">Jumlah <span className="text-destructive">*</span></Label>
@@ -180,32 +185,19 @@ export default function StockInPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="unit">Satuan</Label>
-                                <Input id="unit" value={selectedItem?.unit || ''} placeholder="Satuan akan terisi otomatis" disabled />
-                            </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="date">Tanggal <span className="text-destructive">*</span></Label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full md:w-[280px] justify-start text-left font-normal",
-                                                !date && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {date ? format(date, "dd MMMM yyyy") : <span>Pilih tanggal</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={date}
-                                            onSelect={setDate}
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                                <Select value={selectedItem?.unit || ''} disabled>
+                                    <SelectTrigger id="unit">
+                                        <SelectValue placeholder="Satuan akan terisi otomatis" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Kg">Kg</SelectItem>
+                                        <SelectItem value="Gram">Gram</SelectItem>
+                                        <SelectItem value="ML">ML</SelectItem>
+                                        <SelectItem value="L">L</SelectItem>
+                                        <SelectItem value="Pack">Pack</SelectItem>
+                                        <SelectItem value="Pcs">Pcs</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="notes">Catatan (Opsional)</Label>

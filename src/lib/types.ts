@@ -12,7 +12,7 @@ export type StockItem = {
   id:string;
   name: string;
   sku: string;
-  unit: 'Pack' | 'Pcs' | 'Roll' | 'Box';
+  unit: 'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs';
   quantity: number;
   lowStockThreshold: number;
   urgentNote?: string;
