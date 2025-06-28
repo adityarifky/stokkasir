@@ -10,7 +10,7 @@ export default function LoginPage() {
             <Warehouse className="h-12 w-12" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Selamat Datang Bro!</h1>
-          <p className="text-muted-foreground">Selamat datang kembali! Silakan masuk ke akun Anda.</p>
+          <p className="text-muted-foreground">Monggo Diisi Yang Benar Yaaa</p>
         </div>
         <LoginForm />
       </div>
