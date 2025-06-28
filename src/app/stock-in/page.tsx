@@ -26,14 +26,14 @@ export default function StockInPage() {
     const [quantity, setQuantity] = useState('');
     const [staffName, setStaffName] = useState('');
     const [notes, setNotes] = useState('');
-    const [unit, setUnit] = useState<'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs' | ''>('');
+    const [unit, setUnit] = useState<'Pack' | 'Pcs' | 'Roll' | 'Box' | ''>('');
 
     const [isLoading, setIsLoading] = useState(false);
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
     const [isFetchingItems, setIsFetchingItems] = useState(true);
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
-    const staffNames = ["Fina", "Siti", "Fani", "Fara", "Adit", "Ikhsan", "Ratna", "Rifky"];
+    const staffNames = ["Tata", "Melin", "Hasna", "Fani", "Vincha", "Nisa"];
 
     useEffect(() => {
         if (selectedItem) {
@@ -202,12 +202,10 @@ export default function StockInPage() {
                                         <SelectValue placeholder="Pilih satuan" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Kg">Kg</SelectItem>
-                                        <SelectItem value="Gram">Gram</SelectItem>
-                                        <SelectItem value="ML">ML</SelectItem>
-                                        <SelectItem value="L">L</SelectItem>
                                         <SelectItem value="Pack">Pack</SelectItem>
                                         <SelectItem value="Pcs">Pcs</SelectItem>
+                                        <SelectItem value="Roll">Roll</SelectItem>
+                                        <SelectItem value="Box">Box</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

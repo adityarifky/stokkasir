@@ -5,7 +5,7 @@ export type Transaction = {
   itemName: string;
   type: 'in' | 'out';
   quantity: number;
-  unit: 'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs';
+  unit: 'Pack' | 'Pcs' | 'Roll' | 'Box';
   actor: string; // Supplier or Destination
   notes?: string;
 };
@@ -14,7 +14,7 @@ export type StockItem = {
   id:string;
   name: string;
   sku: string;
-  unit: 'Kg' | 'Gram' | 'ML' | 'L' | 'Pack' | 'Pcs';
+  unit: 'Pack' | 'Pcs' | 'Roll' | 'Box';
   quantity: number;
   lowStockThreshold: number;
   urgentNote?: string;
