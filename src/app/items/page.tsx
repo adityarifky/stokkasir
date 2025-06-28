@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { StockItem } from "@/lib/types";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import Image from "next/image";
 
 export default function ItemsPage() {
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
@@ -66,7 +65,6 @@ export default function ItemsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[80px]">Gambar</TableHead>
                                     <TableHead>Nama Barang</TableHead>
                                     <TableHead>Satuan</TableHead>
                                     <TableHead className="text-right">Stok Minimal</TableHead>
@@ -80,16 +78,6 @@ export default function ItemsPage() {
                                 {stockItems.length > 0 ? (
                                     stockItems.map((item) => (
                                         <TableRow key={item.id}>
-                                            <TableCell>
-                                                 <Image 
-                                                    src={`https://placehold.co/64x64/EEE8AA/333333?text=${item.name.charAt(0)}`} 
-                                                    alt={item.name}
-                                                    width={48}
-                                                    height={48}
-                                                    className="rounded-md"
-                                                    data-ai-hint="gambar produk"
-                                                />
-                                            </TableCell>
                                             <TableCell className="font-medium">{item.name}</TableCell>
                                             <TableCell>{item.unit}</TableCell>
                                             <TableCell className="text-right">{item.lowStockThreshold.toLocaleString()}</TableCell>
@@ -113,7 +101,7 @@ export default function ItemsPage() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center">
+                                        <TableCell colSpan={5} className="h-24 text-center">
                                             Belum ada barang. Silakan tambahkan barang baru.
                                         </TableCell>
                                     </TableRow>
