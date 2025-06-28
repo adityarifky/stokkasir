@@ -6,19 +6,44 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Boxes, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
-import type { StockItem } from "@/lib/types";
+import { Download, Boxes, AlertTriangle, CheckCircle, Loader2, BarChart3, Calendar as CalendarIcon } from "lucide-react";
+import type { StockItem, Transaction } from "@/lib/types";
 import { useAuth } from '@/contexts/auth-context';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, getDocs, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { DateRange } from 'react-day-picker';
+import { format, startOfMonth } from 'date-fns';
+import { id as a_id } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+
+type AccumulationItem = {
+    name: string;
+    totalIn: number;
+    totalOut: number;
+    netChange: number;
+    unit: StockItem['unit'];
+};
 
 export default function ReportPage() {
     const { user } = useAuth();
     const { toast } = useToast();
+    
+    // State for Detailed Stock Report
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState('');
+
+    // State for Accumulated Stock Report
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: startOfMonth(new Date()),
+        to: new Date(),
+    });
+    const [accumulationData, setAccumulationData] = useState<AccumulationItem[]>([]);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generatedReportRange, setGeneratedReportRange] = useState<DateRange | undefined>(undefined);
 
     useEffect(() => {
         if (user) {
@@ -69,7 +94,7 @@ export default function ReportPage() {
         );
     };
 
-    const handleExport = () => {
+    const handleDetailExport = () => {
         if (stockItems.length === 0) {
             toast({
                 variant: "destructive",
@@ -101,7 +126,7 @@ export default function ReportPage() {
         const url = URL.createObjectURL(blob);
         const today = new Date().toISOString().slice(0, 10);
         link.setAttribute("href", url);
-        link.setAttribute("download", `laporan-stok-${today}.csv`);
+        link.setAttribute("download", `laporan-stok-rincian-${today}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -113,10 +138,123 @@ export default function ReportPage() {
             description: "Laporan stok telah diekspor."
         });
     };
+    
+    const handleGenerateAccumulationReport = async () => {
+        if (!user || !dateRange?.from || !dateRange?.to) {
+            toast({ variant: 'destructive', title: 'Gagal', description: 'Silakan pilih rentang tanggal terlebih dahulu.' });
+            return;
+        }
+
+        setIsGenerating(true);
+        setAccumulationData([]);
+
+        try {
+            // Set end of day for the 'to' date to make it inclusive
+            const toDate = new Date(dateRange.to);
+            toDate.setHours(23, 59, 59, 999);
+
+            const txsColRef = collection(db, `users/${user.uid}/transactions`);
+            const q = query(txsColRef, where("date", ">=", dateRange.from.toISOString()), where("date", "<=", toDate.toISOString()));
+            const querySnapshot = await getDocs(q);
+            const transactions = querySnapshot.docs.map(doc => doc.data() as Transaction);
+
+            const accumulationMap = new Map<string, Omit<AccumulationItem, 'name' | 'unit'>>();
+
+            stockItems.forEach(item => {
+                accumulationMap.set(item.name, { totalIn: 0, totalOut: 0, netChange: 0 });
+            });
+
+            transactions.forEach(tx => {
+                const item = accumulationMap.get(tx.itemName);
+                if (item) {
+                    if (tx.type === 'in') {
+                        item.totalIn += tx.quantity;
+                    } else {
+                        item.totalOut += tx.quantity;
+                    }
+                }
+            });
+            
+            const processedData: AccumulationItem[] = [];
+            accumulationMap.forEach((value, key) => {
+                const stockItem = stockItems.find(si => si.name === key);
+                if (stockItem) {
+                     processedData.push({
+                        name: key,
+                        totalIn: value.totalIn,
+                        totalOut: value.totalOut,
+                        netChange: value.totalIn - value.totalOut,
+                        unit: stockItem.unit,
+                    });
+                }
+            });
+
+            processedData.sort((a, b) => a.name.localeCompare(b.name));
+
+            setAccumulationData(processedData);
+            setGeneratedReportRange(dateRange);
+
+        } catch (error) {
+            console.error("Gagal membuat laporan akumulasi:", error);
+            toast({ variant: 'destructive', title: 'Gagal', description: 'Terjadi kesalahan saat memproses data.' });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const handleAccumulationExport = () => {
+        if (accumulationData.length === 0) {
+            toast({
+                variant: "destructive",
+                title: "Tidak ada data",
+                description: "Silakan generate laporan terlebih dahulu untuk mengekspor.",
+            });
+            return;
+        }
+
+        const csvHeader = "Nama Bahan,Total Masuk,Total Keluar,Perubahan Netto,Satuan\n";
+        
+        const csvRows = accumulationData.map(item => {
+            const name = `"${item.name.replace(/"/g, '""')}"`;
+            return [
+                name,
+                item.totalIn,
+                item.totalOut,
+                item.netChange,
+                item.unit
+            ].join(',');
+        }).join('\n');
+
+        const csvContent = csvHeader + csvRows;
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        
+        const url = URL.createObjectURL(blob);
+        const fromDate = generatedReportRange?.from ? format(generatedReportRange.from, 'yyyy-MM-dd') : '';
+        const toDate = generatedReportRange?.to ? format(generatedReportRange.to, 'yyyy-MM-dd') : '';
+        link.setAttribute("href", url);
+        link.setAttribute("download", `laporan-akumulasi-${fromDate}-to-${toDate}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast({
+            title: "Berhasil!",
+            description: "Laporan akumulasi stok telah diekspor."
+        });
+    };
+    
+    const formatDateRange = (range: DateRange | undefined) => {
+        if (!range?.from) return "Pilih tanggal";
+        if (!range.to) return format(range.from, "dd LLL, yyyy", { locale: a_id });
+        return `${format(range.from, "dd LLL, yyyy", { locale: a_id })} - ${format(range.to, "dd LLL, yyyy", { locale: a_id })}`;
+    };
 
     return (
         <AppLayout pageTitle="Laporan Stok">
-            <div className="space-y-4">
+            <div className="space-y-8">
                  <div>
                     <h1 className="text-3xl font-bold">Laporan Stok</h1>
                     <p className="text-muted-foreground">Per tanggal: {currentDate}</p>
@@ -134,7 +272,7 @@ export default function ReportPage() {
                                    <CardDescription>Menampilkan {stockItems.length} jenis bahan baku terdaftar.</CardDescription>
                                </div>
                            </div>
-                           <Button variant="outline" onClick={handleExport}>
+                           <Button variant="outline" onClick={handleDetailExport}>
                                <Download className="mr-2 h-4 w-4"/>
                                Export Rincian Stok
                            </Button>
@@ -176,6 +314,108 @@ export default function ReportPage() {
                                     <TableRow>
                                         <TableCell colSpan={6} className="h-24 text-center">
                                             Tidak ada data untuk ditampilkan.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center gap-4">
+                            <div className="text-primary">
+                                <BarChart3 className="h-8 w-8"/>
+                            </div>
+                            <div>
+                                <CardTitle className="text-xl">Laporan Akumulasi Stok</CardTitle>
+                                <CardDescription>
+                                    {generatedReportRange?.from && generatedReportRange?.to 
+                                        ? `Menampilkan akumulasi stok untuk periode ${formatDateRange(generatedReportRange)}.`
+                                        : 'Pilih rentang tanggal untuk membuat laporan akumulasi stok.'}
+                                </CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className='border rounded-lg p-4 mb-6 flex items-center gap-4 flex-wrap'>
+                            <div className='space-y-2'>
+                                <Label>Rentang Tanggal</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            id="date"
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-[300px] justify-start text-left font-normal",
+                                                !dateRange && "text-muted-foreground"
+                                            )}
+                                            >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {formatDateRange(dateRange)}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            initialFocus
+                                            mode="range"
+                                            defaultMonth={dateRange?.from}
+                                            selected={dateRange}
+                                            onSelect={setDateRange}
+                                            numberOfMonths={2}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                            <Button onClick={handleGenerateAccumulationReport} disabled={isGenerating || !dateRange?.from} className="self-end">
+                                {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Generate
+                            </Button>
+                             <Button variant="outline" onClick={handleAccumulationExport} disabled={accumulationData.length === 0} className="self-end">
+                               <Download className="mr-2 h-4 w-4"/>
+                               Export
+                           </Button>
+                        </div>
+
+                         <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Nama Bahan</TableHead>
+                                    <TableHead className="text-right">Total Masuk</TableHead>
+                                    <TableHead className="text-right">Total Keluar</TableHead>
+                                    <TableHead className="text-right">Perubahan Netto</TableHead>
+                                    <TableHead>Satuan</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {isGenerating ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">
+                                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                                            <p className="mt-2">Membuat laporan...</p>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : accumulationData.length > 0 ? (
+                                    accumulationData.map((item) => (
+                                        <TableRow key={item.name}>
+                                            <TableCell className="font-medium">{item.name}</TableCell>
+                                            <TableCell className={cn("text-right font-medium", item.totalIn > 0 && "text-green-600")}>
+                                                {item.totalIn > 0 ? `+${item.totalIn.toLocaleString()}`: item.totalIn}
+                                            </TableCell>
+                                             <TableCell className={cn("text-right font-medium", item.totalOut > 0 && "text-destructive")}>
+                                                {item.totalOut > 0 ? `-${item.totalOut.toLocaleString()}` : item.totalOut}
+                                            </TableCell>
+                                             <TableCell className={cn("text-right font-medium", item.netChange > 0 && "text-green-600", item.netChange < 0 && "text-destructive")}>
+                                                {item.netChange.toLocaleString()}
+                                            </TableCell>
+                                            <TableCell>{item.unit}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                            {generatedReportRange ? 'Tidak ada transaksi pada periode yang dipilih.' : 'Silakan generate laporan untuk melihat data.'}
                                         </TableCell>
                                     </TableRow>
                                 )}
