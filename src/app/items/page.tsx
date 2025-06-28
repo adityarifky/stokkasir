@@ -7,13 +7,7 @@ import type { StockItem } from "@/lib/types";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import Image from "next/image";
 
-const stockItems: StockItem[] = [
-    { id: "1", name: "Gold Bar 1oz", sku: "SKU-001", category: "Gold", quantity: 840, lowStockThreshold: 100 },
-    { id: "2", name: "Gold Coin", sku: "SKU-002", category: "Gold", quantity: 150, lowStockThreshold: 200 },
-    { id: "3", name: "Silver Bar 1kg", sku: "SKU-003", category: "Silver", quantity: 15, lowStockThreshold: 20 },
-    { id: "4", name: "Platinum Coin", sku: "SKU-004", category: "Platinum", quantity: 1200, lowStockThreshold: 150 },
-    { id: "5", name: "Silver Coin", sku: "SKU-005", category: "Silver", quantity: 300, lowStockThreshold: 50 },
-];
+const stockItems: StockItem[] = [];
 
 export default function ItemsPage() {
     return (
@@ -44,39 +38,47 @@ export default function ItemsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {stockItems.map((item) => (
-                                <TableRow key={item.id}>
-                                    <TableCell>
-                                         <Image 
-                                            src={`https://placehold.co/64x64/EEE8AA/333333?text=${item.name.charAt(0)}`} 
-                                            alt={item.name}
-                                            width={48}
-                                            height={48}
-                                            className="rounded-md"
-                                            data-ai-hint="gambar produk"
-                                        />
-                                    </TableCell>
-                                    <TableCell className="font-medium">{item.name}</TableCell>
-                                    <TableCell>{item.sku}</TableCell>
-                                    <TableCell>{item.category}</TableCell>
-                                    <TableCell className="text-right">{item.quantity.toLocaleString()}</TableCell>
-                                    <TableCell>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                    <span className="sr-only">Toggle menu</span>
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                                                <DropdownMenuItem>Ubah</DropdownMenuItem>
-                                                <DropdownMenuItem>Hapus</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                            {stockItems.length > 0 ? (
+                                stockItems.map((item) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell>
+                                             <Image 
+                                                src={`https://placehold.co/64x64/EEE8AA/333333?text=${item.name.charAt(0)}`} 
+                                                alt={item.name}
+                                                width={48}
+                                                height={48}
+                                                className="rounded-md"
+                                                data-ai-hint="gambar produk"
+                                            />
+                                        </TableCell>
+                                        <TableCell className="font-medium">{item.name}</TableCell>
+                                        <TableCell>{item.sku}</TableCell>
+                                        <TableCell>{item.category}</TableCell>
+                                        <TableCell className="text-right">{item.quantity.toLocaleString()}</TableCell>
+                                        <TableCell>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                        <span className="sr-only">Toggle menu</span>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                                                    <DropdownMenuItem>Ubah</DropdownMenuItem>
+                                                    <DropdownMenuItem>Hapus</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="h-24 text-center">
+                                        Belum ada barang. Silakan tambahkan barang baru.
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
