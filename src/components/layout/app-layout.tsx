@@ -101,7 +101,6 @@ export default function AppLayout({ children, pageTitle }: { children: React.Rea
                 </div>
                 <div className="flex items-center gap-4">
                     <h1 className="text-xl font-semibold hidden md:block">{pageTitle}</h1>
-                    <UserNav />
                 </div>
             </header>
             <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
