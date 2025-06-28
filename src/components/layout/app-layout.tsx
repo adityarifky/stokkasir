@@ -35,12 +35,12 @@ function AppSidebar() {
   return (
     <Sidebar variant="inset" collapsible="icon">
       <div className="flex h-full flex-col p-2">
-        <div className="flex h-14 items-center justify-center p-2">
+        <div className="flex h-20 items-center justify-center p-2">
           <Link href="/dashboard">
             <img
               src="/Desain tanpa judul (2).png"
               alt="Logo Aplikasi"
-              className="w-32 transition-all duration-300 group-data-[state=collapsed]:w-8"
+              className="w-40 transition-all duration-300 group-data-[state=collapsed]:w-8"
             />
           </Link>
         </div>
