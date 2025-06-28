@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { UserNav } from './user-nav';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -36,13 +35,14 @@ function AppSidebar() {
   return (
     <Sidebar variant="inset" collapsible="icon">
       <div className="flex h-full flex-col p-2">
-        <div className="p-2">
-          <Button variant="ghost" className="flex w-full items-center justify-start gap-2">
-             <div className="rounded-lg bg-primary/20 p-2 text-primary">
-                <Warehouse className="h-6 w-6" />
-             </div>
-             <span className="font-bold">GoldStock</span>
-          </Button>
+        <div className="flex h-14 items-center justify-center p-2">
+          <Link href="/dashboard">
+            <img
+              src="/Desain tanpa judul (2).png"
+              alt="Logo Aplikasi"
+              className="w-24 transition-all duration-300 group-data-[state=collapsed]:w-8"
+            />
+          </Link>
         </div>
 
         <nav className="flex-1 space-y-1 p-2">
