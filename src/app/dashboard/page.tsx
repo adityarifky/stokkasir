@@ -1,7 +1,7 @@
 "use client";
 
 import AppLayout from "@/components/layout/app-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight, ArrowDownLeft, Boxes, AlertTriangle, Loader2 } from "lucide-react";
@@ -20,21 +20,23 @@ export default function DashboardPage() {
         stockInToday: 0,
         stockOutToday: 0
     });
-    const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+    const [lowStockItemsList, setLowStockItemsList] = useState<StockItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (user) {
             setIsLoading(true);
 
-            // Listener for items to calculate summary
+            // Listener for items to calculate summary and low stock list
             const itemsColRef = collection(db, `users/${user.uid}/items`);
-            const itemsUnsubscribe = onSnapshot(itemsColRef, (snapshot) => {
-                const itemsList = snapshot.docs.map(doc => doc.data() as StockItem);
+            const itemsQuery = query(itemsColRef, orderBy("name", "asc"));
+            const itemsUnsubscribe = onSnapshot(itemsQuery, (snapshot) => {
+                const itemsList = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()} as StockItem));
                 const totalItems = itemsList.length;
-                const lowStockItems = itemsList.filter(item => item.quantity <= item.lowStockThreshold).length;
+                const lowStockItemsData = itemsList.filter(item => item.quantity <= item.lowStockThreshold);
                 
-                setSummary(prev => ({ ...prev, totalItems, lowStockItems }));
+                setSummary(prev => ({ ...prev, totalItems, lowStockItems: lowStockItemsData.length }));
+                setLowStockItemsList(lowStockItemsData);
             }, error => console.error("Error fetching items for dashboard:", error));
 
             // Listener for transactions
@@ -47,7 +49,6 @@ export default function DashboardPage() {
                 const stockOutToday = txsList.filter(tx => tx.type === 'out' && isToday(parseISO(tx.date))).reduce((acc, tx) => acc + tx.quantity, 0);
 
                 setSummary(prev => ({ ...prev, stockInToday, stockOutToday }));
-                setRecentTransactions(txsList.slice(0, 5)); // Get last 5 transactions
                 setIsLoading(false);
             }, error => {
                 console.error("Error fetching transactions for dashboard:", error);
@@ -62,7 +63,7 @@ export default function DashboardPage() {
         } else {
             setIsLoading(false);
             setSummary({ totalItems: 0, lowStockItems: 0, stockInToday: 0, stockOutToday: 0 });
-            setRecentTransactions([]);
+            setLowStockItemsList([]);
         }
     }, [user]);
 
@@ -96,46 +97,49 @@ export default function DashboardPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Transaksi Terkini</CardTitle>
+                        <CardTitle>Stok Barang Menipis</CardTitle>
+                        <CardDescription>Barang yang perlu segera diisi ulang.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Tanggal</TableHead>
-                                    <TableHead>Barang</TableHead>
-                                    <TableHead className="text-center">Jenis</TableHead>
-                                    <TableHead>Staff</TableHead>
-                                    <TableHead className="text-right">Jumlah</TableHead>
+                                    <TableHead>Nama Barang</TableHead>
+                                    <TableHead className="text-right">Stok Saat Ini</TableHead>
+                                    <TableHead className="text-right">Batas Minimum</TableHead>
+                                    <TableHead className="text-center">Status</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
+                                        <TableCell colSpan={4} className="h-24 text-center">
                                             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                                         </TableCell>
                                     </TableRow>
-                                ) : recentTransactions.length > 0 ? (
-                                    recentTransactions.map((tx) => (
-                                        <TableRow key={tx.id}>
-                                            <TableCell>{new Date(tx.date).toLocaleDateString('id-ID')}</TableCell>
+                                ) : lowStockItemsList.length > 0 ? (
+                                    lowStockItemsList.map((item) => (
+                                        <TableRow key={item.id}>
                                             <TableCell>
-                                                <div className="font-medium">{tx.itemName}</div>
+                                                <div className="font-medium">{item.name}</div>
+                                            </TableCell>
+                                            <TableCell className="text-right font-medium text-destructive">
+                                                {item.quantity.toLocaleString()} {item.unit}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                {item.lowStockThreshold.toLocaleString()} {item.unit}
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                <Badge variant={tx.type === 'in' ? 'secondary' : 'destructive'}>
-                                                    {tx.type === 'in' ? 'masuk' : 'keluar'}
+                                                <Badge variant={'destructive'}>
+                                                    Menipis
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell>{tx.actor}</TableCell>
-                                            <TableCell className="text-right font-medium">{tx.quantity.toLocaleString()} {tx.unit}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            Belum ada transaksi terkini.
+                                        <TableCell colSpan={4} className="h-24 text-center">
+                                            Semua stok barang dalam kondisi aman.
                                         </TableCell>
                                     </TableRow>
                                 )}
