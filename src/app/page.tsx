@@ -1,12 +1,11 @@
 import { LoginForm } from '@/components/auth/login-form';
-import Image from 'next/image';
 
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center">
-          <Image
+          <img
             src="/Desain tanpa judul (2).png"
             alt="Logo Aplikasi"
             width={100}
