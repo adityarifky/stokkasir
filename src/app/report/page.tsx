@@ -60,7 +60,7 @@ export default function ReportPage() {
             );
         }
         return (
-            <Badge className="bg-green-600 hover:bg-green-700 flex items-center gap-1 text-primary-foreground w-fit">
+            <Badge variant="secondary" className="flex items-center gap-1 w-fit">
                  <CheckCircle className="h-3.5 w-3.5" />
                 Aman
             </Badge>

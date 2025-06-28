@@ -124,7 +124,7 @@ export default function DashboardPage() {
                                                 <div className="text-sm text-muted-foreground">{tx.item}</div>
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                <Badge variant={tx.type === 'in' ? 'secondary' : 'outline'} className={tx.type === 'in' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}>
+                                                <Badge variant={tx.type === 'in' ? 'secondary' : 'destructive'}>
                                                     {tx.type === 'in' ? 'masuk' : 'keluar'}
                                                 </Badge>
                                             </TableCell>

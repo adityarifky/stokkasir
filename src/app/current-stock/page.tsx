@@ -53,7 +53,7 @@ export default function CurrentStockPage() {
             );
         }
         return (
-             <Badge variant="outline" className="border-transparent bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 flex items-center gap-1.5 w-fit hover:bg-green-200/50">
+             <Badge variant="secondary" className="flex items-center gap-1.5 w-fit">
                  <CheckCircle className="h-3.5 w-3.5" />
                 Aman
             </Badge>
@@ -110,7 +110,7 @@ export default function CurrentStockPage() {
                                             <div>
                                                 {item.urgentNote ? (
                                                     <div>
-                                                        <p className="text-sm text-amber-600 font-semibold">{item.urgentNote}</p>
+                                                        <p className="text-sm text-primary font-semibold">{item.urgentNote}</p>
                                                         <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-primary">
                                                             <Edit className="h-3 w-3 mr-1" />
                                                             Edit Catatan
