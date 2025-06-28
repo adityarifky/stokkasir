@@ -11,9 +11,11 @@ import type { StockItem } from "@/lib/types";
 import { useAuth } from '@/contexts/auth-context';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ReportPage() {
     const { user } = useAuth();
+    const { toast } = useToast();
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState('');
@@ -67,6 +69,51 @@ export default function ReportPage() {
         );
     };
 
+    const handleExport = () => {
+        if (stockItems.length === 0) {
+            toast({
+                variant: "destructive",
+                title: "Tidak ada data",
+                description: "Tidak ada data stok untuk diekspor.",
+            });
+            return;
+        }
+
+        const csvHeader = "No.,Nama Bahan,Stok Saat Ini,Satuan,Min. Stok,Status\n";
+        
+        const csvRows = stockItems.map((item, index) => {
+            const status = item.quantity <= item.lowStockThreshold ? 'Menipis' : 'Aman';
+            const name = `"${item.name.replace(/"/g, '""')}"`;
+            return [
+                index + 1,
+                name,
+                item.quantity,
+                item.unit,
+                item.lowStockThreshold,
+                status
+            ].join(',');
+        }).join('\n');
+
+        const csvContent = csvHeader + csvRows;
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        
+        const url = URL.createObjectURL(blob);
+        const today = new Date().toISOString().slice(0, 10);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `laporan-stok-${today}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast({
+            title: "Berhasil!",
+            description: "Laporan stok telah diekspor."
+        });
+    };
+
     return (
         <AppLayout pageTitle="Laporan Stok">
             <div className="space-y-4">
@@ -87,7 +134,7 @@ export default function ReportPage() {
                                    <CardDescription>Menampilkan {stockItems.length} jenis bahan baku terdaftar.</CardDescription>
                                </div>
                            </div>
-                           <Button variant="outline">
+                           <Button variant="outline" onClick={handleExport}>
                                <Download className="mr-2 h-4 w-4"/>
                                Export Rincian Stok
                            </Button>
