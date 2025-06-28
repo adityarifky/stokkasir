@@ -162,8 +162,8 @@ export default function StockOutPage() {
             <form onSubmit={handleSubmit}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Tambah Bahan Baku Keluar</CardTitle>
-                        <CardDescription>Isi detail bahan baku yang dikeluarkan.</CardDescription>
+                        <CardTitle>Tambah Barang Kasir Keluar</CardTitle>
+                        <CardDescription>Isi detail barang kasir yang dikeluarkan.</CardDescription>
                     </CardHeader>
                     <CardContent>
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
