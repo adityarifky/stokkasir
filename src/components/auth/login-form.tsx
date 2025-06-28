@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -27,9 +27,18 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [currentDate, setCurrentDate] = useState("");
   const { signIn } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const dateOptions: Intl.DateTimeFormatOptions = {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    };
+    setCurrentDate(new Date().toLocaleDateString('id-ID', dateOptions));
+  }, []);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,7 +67,7 @@ export function LoginForm() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Masuk</CardTitle>
-        <CardDescription>Masukkan kredensial Anda untuk mengakses akun Anda.</CardDescription>
+        <CardDescription>{currentDate || "Memuat tanggal..."}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
