@@ -8,8 +8,8 @@ export default function LoginPage() {
           <img
             src="/Desain tanpa judul (2).png"
             alt="Logo Aplikasi"
-            width={100}
-            height={100}
+            width={300}
+            height={150}
             className="mb-4"
           />
           <h1 className="text-3xl font-bold text-foreground">Selamat Datang Bro!</h1>
