@@ -31,6 +31,8 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
                     <TableHead>Barang</TableHead>
                     <TableHead className="text-center">Jenis</TableHead>
                     <TableHead className="text-right">Jumlah</TableHead>
+                    <TableHead>Staff</TableHead>
+                    <TableHead>Catatan</TableHead>
                     <TableHead>Tanggal</TableHead>
                 </TableRow>
             </TableHeader>
@@ -40,7 +42,6 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
                         <TableRow key={tx.id}>
                             <TableCell>
                                 <div className="font-medium">{tx.itemName}</div>
-                                <div className="text-sm text-muted-foreground">{tx.item}</div>
                             </TableCell>
                             <TableCell className="text-center">
                                 <Badge variant={tx.type === 'in' ? 'secondary' : 'destructive'}>
@@ -48,12 +49,14 @@ function HistoryTable({ transactions, isLoading }: { transactions: Transaction[]
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right font-medium">{tx.quantity} {tx.unit}</TableCell>
+                            <TableCell>{tx.actor}</TableCell>
+                            <TableCell>{tx.notes || '-'}</TableCell>
                             <TableCell>{new Date(tx.date).toLocaleString('id-ID')}</TableCell>
                         </TableRow>
                     ))
                 ) : (
                     <TableRow>
-                        <TableCell colSpan={4} className="h-24 text-center">
+                        <TableCell colSpan={6} className="h-24 text-center">
                             Tidak ada transaksi untuk ditampilkan.
                         </TableCell>
                     </TableRow>

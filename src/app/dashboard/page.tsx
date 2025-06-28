@@ -104,6 +104,7 @@ export default function DashboardPage() {
                                 <TableRow>
                                     <TableHead>Barang</TableHead>
                                     <TableHead className="text-center">Jenis</TableHead>
+                                    <TableHead>Staff</TableHead>
                                     <TableHead className="text-right">Jumlah</TableHead>
                                     <TableHead>Tanggal</TableHead>
                                 </TableRow>
@@ -111,7 +112,7 @@ export default function DashboardPage() {
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
+                                        <TableCell colSpan={5} className="h-24 text-center">
                                             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                                         </TableCell>
                                     </TableRow>
@@ -120,20 +121,20 @@ export default function DashboardPage() {
                                         <TableRow key={tx.id}>
                                             <TableCell>
                                                 <div className="font-medium">{tx.itemName}</div>
-                                                <div className="text-sm text-muted-foreground">{tx.item}</div>
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 <Badge variant={tx.type === 'in' ? 'secondary' : 'destructive'}>
                                                     {tx.type === 'in' ? 'masuk' : 'keluar'}
                                                 </Badge>
                                             </TableCell>
+                                            <TableCell>{tx.actor}</TableCell>
                                             <TableCell className="text-right font-medium">{tx.quantity.toLocaleString()} {tx.unit}</TableCell>
                                             <TableCell>{new Date(tx.date).toLocaleDateString('id-ID')}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
+                                        <TableCell colSpan={5} className="h-24 text-center">
                                             Belum ada transaksi terkini.
                                         </TableCell>
                                     </TableRow>
