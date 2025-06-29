@@ -151,7 +151,7 @@ export default function StockOutPage() {
         <AppLayout pageTitle="Stok Keluar">
              <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold">Stok Keluar</h1>
+                    <h1 className="text-3xl font-bold">Stok Keluar</h1>
                     <p className="text-muted-foreground">Catat dengan detail dan teliti ya bro.</p>
                 </div>
                 <Button variant="outline" onClick={() => router.push('/history')} className="w-full sm:w-auto">
