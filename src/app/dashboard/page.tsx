@@ -120,7 +120,7 @@ export default function DashboardPage() {
                     ))}
                 </div>
 
-                <div className="grid gap-8 lg:grid-cols-2">
+                <div className="grid gap-8 lg:grid-cols-1">
                     <Card>
                         <CardHeader>
                             <CardTitle>Stok Barang Menipis</CardTitle>
@@ -133,13 +133,14 @@ export default function DashboardPage() {
                                         <TableHead>Nama Barang</TableHead>
                                         <TableHead className="text-right">Stok Saat Ini</TableHead>
                                         <TableHead className="text-right">Batas Minimum</TableHead>
+                                        <TableHead>Catatan</TableHead>
                                         <TableHead className="text-center">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {isLoading ? (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
+                                            <TableCell colSpan={5} className="h-24 text-center">
                                                 <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                                             </TableCell>
                                         </TableRow>
@@ -155,6 +156,7 @@ export default function DashboardPage() {
                                                 <TableCell className="text-right">
                                                     {item.lowStockThreshold.toLocaleString()} {item.unit}
                                                 </TableCell>
+                                                <TableCell className="text-primary font-semibold">{item.urgentNote || '-'}</TableCell>
                                                 <TableCell className="text-center">
                                                     <Badge variant={'destructive'}>
                                                         Menipis
@@ -164,7 +166,7 @@ export default function DashboardPage() {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
+                                            <TableCell colSpan={5} className="h-24 text-center">
                                                 Semua stok barang dalam kondisi aman.
                                             </TableCell>
                                         </TableRow>
