@@ -166,12 +166,12 @@ export default function StockOutPage() {
                         <CardDescription>Isi detail barang kasir yang dikeluarkan.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="item">Bahan Baku <span className="text-destructive">*</span></Label>
+                                <Label htmlFor="item">Barang Kasir <span className="text-destructive">*</span></Label>
                                 <Select onValueChange={setSelectedItemId} value={selectedItemId} disabled={isFetchingItems || stockItems.length === 0}>
                                     <SelectTrigger id="item">
-                                        <SelectValue placeholder={isFetchingItems ? "Memuat barang..." : "Pilih bahan baku..."} />
+                                        <SelectValue placeholder={isFetchingItems ? "Memuat barang..." : "Pilih barang kasir..."} />
                                     </SelectTrigger>
                                     <SelectContent>
                                     {stockItems.length > 0 ? (
