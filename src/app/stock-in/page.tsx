@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, History, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, History } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { StockItem, Transaction } from "@/lib/types";
@@ -15,9 +15,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, doc, runTransaction } from "firebase/firestore";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
 
 export default function StockInPage() {
     const { user } = useAuth();
@@ -34,7 +31,6 @@ export default function StockInPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
     const [isFetchingItems, setIsFetchingItems] = useState(true);
-    const [open, setOpen] = useState(false)
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
     const staffNames = ["Tata", "Melin", "Hasna", "Fani", "Vincha", "Nisa"];
@@ -163,50 +159,18 @@ export default function StockInPage() {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                              <div className="space-y-2">
                                 <Label htmlFor="item">Barang Kasir <span className="text-destructive">*</span></Label>
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                        variant="outline"
-                                        role="combobox"
-                                        aria-expanded={open}
-                                        className="w-full justify-between"
-                                        disabled={isFetchingItems || stockItems.length === 0}
-                                        >
-                                        {selectedItemId
-                                            ? stockItems.find((item) => item.id === selectedItemId)?.name
-                                            : isFetchingItems ? "Memuat barang..." : "Pilih barang kasir..."}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                        <Command>
-                                            <CommandInput placeholder="Cari barang kasir..." />
-                                            <CommandList>
-                                                <CommandEmpty>Barang tidak ditemukan.</CommandEmpty>
-                                                <CommandGroup>
-                                                {stockItems.map((item) => (
-                                                    <CommandItem
-                                                        key={item.id}
-                                                        value={item.id}
-                                                        onSelect={(currentValue) => {
-                                                            setSelectedItemId(currentValue === selectedItemId ? "" : currentValue);
-                                                            setOpen(false);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedItemId === item.id ? "opacity-100" : "opacity-0"
-                                                            )}
-                                                        />
-                                                        {item.name} ({item.sku})
-                                                    </CommandItem>
-                                                ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
+                                <Select onValueChange={setSelectedItemId} value={selectedItemId} disabled={isFetchingItems}>
+                                    <SelectTrigger id="item">
+                                        <SelectValue placeholder={isFetchingItems ? "Memuat barang..." : "Pilih barang kasir"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {stockItems.map((item) => (
+                                            <SelectItem key={item.id} value={item.id}>
+                                                {item.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="staff">Nama Staff Pengisi <span className="text-destructive">*</span></Label>
