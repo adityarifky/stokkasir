@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, History, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, History, ChevronsUpDown } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { StockItem, Transaction } from "@/lib/types";
@@ -17,7 +17,6 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, query, doc, runTransaction } from "firebase/firestore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
 
 export default function StockInPage() {
     const { user } = useAuth();
@@ -35,6 +34,7 @@ export default function StockInPage() {
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
     const [isFetchingItems, setIsFetchingItems] = useState(true);
     const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
     const staffNames = ["Tata", "Melin", "Hasna", "Fani", "Vincha", "Nisa"];
@@ -79,6 +79,7 @@ export default function StockInPage() {
     const handleItemSelect = (itemId: string) => {
         setSelectedItemId(itemId);
         setIsItemDialogOpen(false);
+        setSearchTerm("");
     };
 
     const resetForm = () => {
@@ -145,6 +146,10 @@ export default function StockInPage() {
             setIsLoading(false);
         }
     }
+    
+    const filteredItems = stockItems.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <AppLayout pageTitle="Stok Masuk">
@@ -172,8 +177,6 @@ export default function StockInPage() {
                                     <DialogTrigger asChild>
                                         <Button
                                             variant="outline"
-                                            role="combobox"
-                                            aria-expanded={isItemDialogOpen}
                                             className="w-full justify-between"
                                             disabled={isFetchingItems}
                                         >
@@ -183,30 +186,32 @@ export default function StockInPage() {
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="p-0">
-                                        <DialogHeader className="p-4 pb-0">
+                                    <DialogContent>
+                                        <DialogHeader>
                                              <DialogTitle>Pilih Barang Kasir</DialogTitle>
                                         </DialogHeader>
-                                        <ScrollArea className="h-72">
-                                            <div className="p-4 pt-0">
-                                            {stockItems.map((item) => (
-                                                <Button
-                                                    key={item.id}
-                                                    variant="ghost"
-                                                    className="w-full justify-start mt-1"
-                                                    onClick={() => handleItemSelect(item.id)}
-                                                >
-                                                     <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedItemId === item.id ? "opacity-100" : "opacity-0"
-                                                        )}
-                                                    />
-                                                    {item.name}
-                                                </Button>
-                                            ))}
-                                            </div>
-                                        </ScrollArea>
+                                        <div className='p-4 pt-0'>
+                                            <Input 
+                                                placeholder="Cari nama barang..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="mb-4"
+                                            />
+                                            <ScrollArea className="h-72">
+                                                <div className="space-y-1">
+                                                {filteredItems.map((item) => (
+                                                    <Button
+                                                        key={item.id}
+                                                        variant="ghost"
+                                                        className="w-full justify-start"
+                                                        onClick={() => handleItemSelect(item.id)}
+                                                    >
+                                                        {item.name}
+                                                    </Button>
+                                                ))}
+                                                </div>
+                                            </ScrollArea>
+                                        </div>
                                     </DialogContent>
                                 </Dialog>
                             </div>
