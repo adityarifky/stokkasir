@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, History } from "lucide-react";
+import { Loader2, History, ChevronsUpDown, Check } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { StockItem, Transaction } from "@/lib/types";
@@ -15,6 +15,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, doc, runTransaction } from "firebase/firestore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 export default function StockOutPage() {
     const { user } = useAuth();
@@ -31,6 +34,7 @@ export default function StockOutPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [stockItems, setStockItems] = useState<StockItem[]>([]);
     const [isFetchingItems, setIsFetchingItems] = useState(true);
+    const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
 
     const selectedItem = stockItems.find(i => i.id === selectedItemId) || null;
     const staffNames = ["Tata", "Melin", "Hasna", "Fani", "Vincha", "Nisa"];
@@ -70,6 +74,11 @@ export default function StockOutPage() {
             fetchItems();
         }
     }, [user, toast]);
+
+    const handleItemSelect = (itemId: string) => {
+        setSelectedItemId(itemId);
+        setIsItemDialogOpen(false);
+    };
 
     const resetForm = () => {
         setSelectedItemId('');
@@ -169,18 +178,48 @@ export default function StockOutPage() {
                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="item">Barang Kasir <span className="text-destructive">*</span></Label>
-                                <Select onValueChange={setSelectedItemId} value={selectedItemId} disabled={isFetchingItems}>
-                                    <SelectTrigger id="item">
-                                        <SelectValue placeholder={isFetchingItems ? "Memuat barang..." : "Pilih barang kasir"} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {stockItems.map((item) => (
-                                            <SelectItem key={item.id} value={item.id} disabled={item.quantity === 0}>
-                                                {item.name} (Stok: {item.quantity})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={isItemDialogOpen}
+                                            className="w-full justify-between"
+                                            disabled={isFetchingItems}
+                                        >
+                                            {selectedItem
+                                                ? selectedItem.name
+                                                : isFetchingItems ? "Memuat barang..." : "Pilih barang kasir..."}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="p-0">
+                                        <DialogHeader className="p-4 pb-0">
+                                            <DialogTitle>Pilih Barang Kasir</DialogTitle>
+                                        </DialogHeader>
+                                        <ScrollArea className="h-72">
+                                            <div className="p-4 pt-0">
+                                            {stockItems.map((item) => (
+                                                <Button
+                                                    key={item.id}
+                                                    variant="ghost"
+                                                    className="w-full justify-start mt-1"
+                                                    onClick={() => handleItemSelect(item.id)}
+                                                    disabled={item.quantity === 0}
+                                                >
+                                                     <Check
+                                                        className={cn(
+                                                            "mr-2 h-4 w-4",
+                                                            selectedItemId === item.id ? "opacity-100" : "opacity-0"
+                                                        )}
+                                                    />
+                                                    {item.name} (Stok: {item.quantity})
+                                                </Button>
+                                            ))}
+                                            </div>
+                                        </ScrollArea>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="actor">Nama Staff Pengambil <span className="text-destructive">*</span></Label>
