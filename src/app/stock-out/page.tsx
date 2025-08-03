@@ -193,9 +193,9 @@ export default function StockOutPage() {
                                             filter={(value, search) => {
                                                 const item = stockItems.find(i => i.id === value);
                                                 if (item) {
-                                                    const a = `${item.name.toLowerCase()} ${item.sku.toLowerCase()}`;
-                                                    const b = search.toLowerCase();
-                                                    if (a.includes(b)) return 1;
+                                                    const itemText = `${item.name.toLowerCase()} ${item.sku.toLowerCase()}`;
+                                                    const searchText = search.toLowerCase();
+                                                    if (itemText.includes(searchText)) return 1;
                                                 }
                                                 return 0;
                                             }}
@@ -206,21 +206,21 @@ export default function StockOutPage() {
                                                 <CommandGroup>
                                                 {stockItems.map((item) => (
                                                     <CommandItem
-                                                    key={item.id}
-                                                    value={item.id}
-                                                    onSelect={(currentValue) => {
-                                                        setSelectedItemId(currentValue === selectedItemId ? "" : currentValue)
-                                                        setOpen(false)
-                                                    }}
-                                                    disabled={item.quantity === 0}
+                                                        key={item.id}
+                                                        value={item.id}
+                                                        onSelect={(currentValue) => {
+                                                            setSelectedItemId(currentValue === selectedItemId ? "" : currentValue)
+                                                            setOpen(false)
+                                                        }}
+                                                        disabled={item.quantity === 0}
                                                     >
-                                                    <Check
-                                                        className={cn(
-                                                        "mr-2 h-4 w-4",
-                                                        selectedItemId === item.id ? "opacity-100" : "opacity-0"
-                                                        )}
-                                                    />
-                                                    {item.name} (Stok: {item.quantity})
+                                                        <Check
+                                                            className={cn(
+                                                            "mr-2 h-4 w-4",
+                                                            selectedItemId === item.id ? "opacity-100" : "opacity-0"
+                                                            )}
+                                                        />
+                                                        {item.name} (Stok: {item.quantity})
                                                     </CommandItem>
                                                 ))}
                                                 </CommandGroup>
