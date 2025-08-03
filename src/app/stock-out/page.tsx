@@ -199,8 +199,8 @@ export default function StockOutPage() {
                                                         key={item.id}
                                                         value={item.id}
                                                         onSelect={(currentValue) => {
-                                                            setSelectedItemId(currentValue === selectedItemId ? "" : currentValue)
-                                                            setOpen(false)
+                                                            setSelectedItemId(currentValue === selectedItemId ? "" : currentValue);
+                                                            setOpen(false);
                                                         }}
                                                         disabled={item.quantity === 0}
                                                     >

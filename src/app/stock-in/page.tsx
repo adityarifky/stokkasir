@@ -189,8 +189,8 @@ export default function StockInPage() {
                                                         key={item.id}
                                                         value={item.id}
                                                         onSelect={(currentValue) => {
-                                                            setSelectedItemId(currentValue === selectedItemId ? "" : currentValue)
-                                                            setOpen(false)
+                                                            setSelectedItemId(currentValue === selectedItemId ? "" : currentValue);
+                                                            setOpen(false);
                                                         }}
                                                     >
                                                         <Check
