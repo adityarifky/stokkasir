@@ -189,7 +189,17 @@ export default function StockOutPage() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                        <Command>
+                                        <Command
+                                            filter={(value, search) => {
+                                                const item = stockItems.find(i => i.id === value);
+                                                if (item) {
+                                                    const a = `${item.name.toLowerCase()} ${item.sku.toLowerCase()}`;
+                                                    const b = search.toLowerCase();
+                                                    if (a.includes(b)) return 1;
+                                                }
+                                                return 0;
+                                            }}
+                                        >
                                             <CommandInput placeholder="Cari barang kasir..." />
                                             <CommandList>
                                                 <CommandEmpty>Barang tidak ditemukan.</CommandEmpty>
