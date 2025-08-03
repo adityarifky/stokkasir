@@ -191,9 +191,9 @@ export default function StockOutPage() {
                                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                         <Command
                                             filter={(value, search) => {
-                                                const item = stockItems.find(i => i.id === value);
+                                                const item = stockItems.find(i => i.id.toLowerCase() === value.toLowerCase());
                                                 if (item) {
-                                                    const itemText = `${item.name.toLowerCase()} ${item.sku.toLowerCase()}`;
+                                                    const itemText = `${item.name.toLowerCase()}${' '}${item.sku.toLowerCase()}`;
                                                     const searchText = search.toLowerCase();
                                                     if (itemText.includes(searchText)) return 1;
                                                 }
@@ -209,7 +209,7 @@ export default function StockOutPage() {
                                                         key={item.id}
                                                         value={item.id}
                                                         onSelect={(currentValue) => {
-                                                            setSelectedItemId(currentValue === selectedItemId ? "" : currentValue)
+                                                            setSelectedItemId(currentValue.toLowerCase() === selectedItemId ? "" : currentValue.toLowerCase())
                                                             setOpen(false)
                                                         }}
                                                         disabled={item.quantity === 0}
@@ -217,7 +217,7 @@ export default function StockOutPage() {
                                                         <Check
                                                             className={cn(
                                                             "mr-2 h-4 w-4",
-                                                            selectedItemId === item.id ? "opacity-100" : "opacity-0"
+                                                            selectedItemId === item.id.toLowerCase() ? "opacity-100" : "opacity-0"
                                                             )}
                                                         />
                                                         {item.name} (Stok: {item.quantity})
